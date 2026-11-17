@@ -1,0 +1,45 @@
+/* Cygre from the supplied UI kit. Original TTF files are kept unchanged. */
+@font-face {
+  font-family: "Cygre";
+  src: url("./Cygre-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  ascent-override: 122%;
+  descent-override: 27.2%;
+  line-gap-override: 9%;
+}
+
+@font-face {
+  font-family: "Cygre";
+  src: url("./Cygre-Medium.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  ascent-override: 122%;
+  descent-override: 27.2%;
+  line-gap-override: 9%;
+}
+
+@font-face {
+  font-family: "Cygre";
+  src: url("./Cygre-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  ascent-override: 122%;
+  descent-override: 27.2%;
+  line-gap-override: 9%;
+}
+
+:root {
+  --font-display: "Cygre", system-ui, sans-serif;
+  --font-body: "Cygre", system-ui, sans-serif;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+}
+
+body {
+  font-family: var(--font-body);
+}

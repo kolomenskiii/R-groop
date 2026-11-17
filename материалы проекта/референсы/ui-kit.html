@@ -1,0 +1,1505 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Дизайн-система эфира 20.10</title>
+<link rel="icon" href="data:,"><!-- у витрины нет значка; без этой строки браузер ищет favicon.ico и пишет 404 в консоль --><link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="styles.css?v=20261016-cookie">
+<link rel="stylesheet" href="kontent.css"><!-- элементы для слайдов и постов — на сайт не идут -->
+<style>
+/* Раскладка самой витрины — не компоненты сайта, поэтому здесь, а не в styles.css */
+@layer layout {
+  .kit { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-8); padding-block: var(--space-7) var(--space-9); }
+  .kit-head { display: grid; gap: var(--space-5); }
+  .kit-lead { font-size: var(--text-subtitle); max-width: 52ch; }
+
+
+  .kit-section { display: grid; gap: var(--space-5); scroll-margin-top: var(--space-4); }
+  .kit-card { background: var(--color-surface); border-radius: var(--radius-lg); padding: clamp(var(--space-4), 3vw, var(--space-6)); box-shadow: inset 0 0 0 1px var(--color-divider), var(--shadow); display: grid; gap: var(--space-5); align-content: start; min-width: 0; }
+  .kit-note { color: var(--color-text-muted); max-width: 64ch; }
+  .kit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: var(--space-4); }
+
+  /* образец фона */
+  .dots-sample { height: 160px; border-radius: var(--radius-md); background: var(--pattern-dots) 0 0 / var(--pattern-step) var(--pattern-step), var(--color-bg); box-shadow: inset 0 0 0 1px rgb(23 23 26 / 0.14); }
+
+  /* палитра */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr)); gap: var(--space-4); }
+  .swatch { margin: 0; display: grid; gap: var(--space-2); align-content: start; min-width: 0; }
+  .swatch i { display: block; aspect-ratio: 4 / 3; border-radius: var(--radius-md); background: var(--c); box-shadow: inset 0 0 0 1px rgb(23 23 26 / 0.14); }
+  .swatch figcaption { display: grid; gap: 2px; font-size: var(--text-caption); line-height: 1.35; color: var(--color-text-muted); }
+  .swatch b { font-size: var(--text-button); color: var(--color-text); }
+  .swatch-hex { font: 600 0.8125rem ui-monospace, Menlo, monospace; color: var(--color-text); }
+  .swatch code { font: 500 0.75rem ui-monospace, Menlo, monospace; color: var(--color-link); overflow-wrap: anywhere; }
+  /* шрифт */
+  .font-card { gap: var(--space-4); }
+  .font-row { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: var(--space-4); align-items: baseline; padding-bottom: var(--space-4); border-bottom: 1px solid rgb(23 23 26 / 0.12); }
+  @media (max-width: 640px) { .font-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); } }
+  .font-meta { font: var(--weight-bold) var(--text-button) / 1.3 var(--font-body); }
+  .font-meta small { font-weight: var(--weight-regular); font-size: var(--text-caption); color: var(--color-text-muted); }
+  .font-sample { font-size: clamp(1.75rem, 1.3rem + 2vw, 2.75rem); line-height: 1.1; letter-spacing: -0.02em; }
+  .font-abc { font-size: var(--text-subtitle); line-height: 1.5; overflow-wrap: anywhere; }
+
+  /* шкала текста */
+  .type-row { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr); gap: var(--space-3) var(--space-5); padding-block: var(--space-4); border-top: 1px solid rgb(23 23 26 / 0.12); align-items: baseline; }
+  .type-row:first-child { border-top: 0; padding-top: 0; }
+  @media (max-width: 640px) { .type-row { grid-template-columns: minmax(0, 1fr); } }
+  .type-meta { display: grid; gap: 2px; font-size: var(--text-caption); color: var(--color-text-muted); }
+  .type-meta b { font-size: var(--text-button); color: var(--color-text); }
+  .type-meta code { font: 500 0.8125rem ui-monospace, Menlo, monospace; color: var(--color-link); }
+
+  /* заголовок с выделением: примеры */
+  .demo { padding: clamp(var(--space-5), 4vw, var(--space-7)) clamp(var(--space-4), 3vw, var(--space-6)); border-radius: var(--radius-md); background: var(--pattern-dots) 0 0 / var(--pattern-step) var(--pattern-step), var(--color-bg); box-shadow: inset 0 0 0 1px rgb(23 23 26 / 0.14); min-width: 0; }
+  .demo.center { text-align: center; }
+  .demo-label { font: var(--weight-medium) var(--text-caption) / 1.3 var(--font-body); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--color-text-muted); margin-bottom: var(--space-3); }
+
+  .anatomy { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: var(--space-3); padding: 0; list-style: none; }
+  .anatomy li { display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: start; font-size: var(--text-caption); line-height: 1.4; }
+  .anatomy i { width: 28px; height: 28px; border-radius: var(--radius-sm); background: var(--c); box-shadow: inset 0 0 0 1px rgb(23 23 26 / 0.14); }
+  .anatomy b { display: block; font-size: var(--text-button); }
+
+  pre { margin: 0; padding: var(--space-4); border-radius: var(--radius-md); background: var(--color-bg-soft); overflow-x: auto; font: 500 0.875rem/1.6 ui-monospace, Menlo, monospace; }
+  .rules { margin: 0; padding-left: 1.2em; display: grid; gap: var(--space-2); max-width: 64ch; }
+
+  /* плашки: подложка «фото» и ряды */
+  .photo-stub { position: relative; height: 280px; border-radius: var(--radius-md); overflow: hidden; background: repeating-linear-gradient(90deg, var(--color-pastel-1) 0 14px, color-mix(in srgb, var(--color-pastel-1) 50%, var(--color-bg)) 14px 28px); display: grid; place-items: center; }
+  .photo-stub-note { font: var(--weight-medium) var(--text-caption) / 1.3 var(--font-body); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--color-text-muted); background: rgb(255 255 255 / 0.7); padding: 0.3em 0.6em; border-radius: var(--radius-sm); }
+  .tag-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+
+  /* кнопка-слайдер: демо */
+  .slide-demo { display: grid; justify-items: center; gap: var(--space-3); }
+  .photo-stub--short { height: 180px; padding: var(--space-4) 0; }
+  .slide-states { display: grid; gap: var(--space-2); container-type: inline-size; }
+  .slide-states .demo-label { margin: var(--space-2) 0 0; }
+  /* картинки-файлы: заглушка, пока нет файла котика */
+  .file__ph { display: none; }
+  .file__thumb.is-missing .file__ph { display: grid; place-items: center; width: 100%; aspect-ratio: 1; border: 3px solid var(--paper); box-shadow: 0 0 0 1px var(--color-divider), var(--shadow); background: repeating-linear-gradient(135deg, var(--color-pastel-3) 0 8px, var(--paper) 8px 16px); font: var(--weight-medium) 0.6875rem / 1.2 var(--font-body); color: var(--color-text-muted); text-align: center; }
+  .eyebrow-demo { display: grid; gap: var(--space-4); }
+  .type-demo { display: grid; gap: var(--space-3); justify-items: start; }
+  .type-meta code + code { margin-top: -2px; }
+  .notice-demo { display: grid; justify-items: center; align-content: start; gap: var(--space-3); }
+  .notice-photo { height: auto; min-height: 280px; padding: var(--space-6) var(--space-4); }
+  /* «размытые ауры» — фон примера из цветов палитры, как в референсе */
+  .aura { display: grid; justify-items: center; align-content: start; gap: var(--space-3); padding-block: var(--space-8);
+    background:
+      radial-gradient(60% 70% at 15% 20%, var(--blue-200), transparent 70%),
+      radial-gradient(55% 65% at 85% 15%, var(--sun-200), transparent 70%),
+      radial-gradient(60% 70% at 10% 90%, var(--matcha-200), transparent 70%),
+      radial-gradient(60% 70% at 90% 85%, var(--lilac-200), transparent 70%),
+      var(--blue-100); }
+  .aura--soft { padding-block: var(--space-6); }
+  .shadow-row { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: center; justify-content: center; }
+  .shadow-sheet { display: grid; place-items: center; width: 11rem; aspect-ratio: 3 / 2; border-radius: var(--radius-md); background: var(--color-surface); box-shadow: inset 0 0 0 1px var(--color-divider), var(--shadow); font: var(--type-caption); color: var(--color-text-muted); }
+  .shadow-photo { width: 6rem; height: auto; border: 3px solid var(--paper); box-shadow: 0 0 0 1px var(--color-divider), var(--shadow); }
+  .cursor-sample { display: grid; justify-items: center; gap: var(--space-2); margin: 0; }
+  .cursor-sample img { width: 3.5rem; height: auto; }
+  .cursor-sample figcaption { font: var(--type-caption); color: var(--color-text-muted); }
+  .shadow-sticker { width: 7.5rem; height: auto; filter: var(--shadow-contour); }
+  .frame-row { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-end; justify-content: center; }
+  .sticker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: var(--space-4); }
+  .sticker-cell { margin: 0; display: grid; justify-items: center; gap: var(--space-1); }
+  .sticker-cell img { width: 5rem; height: 5rem; object-fit: contain; }
+  .sticker-cell figcaption { font: 500 0.6875rem ui-monospace, Menlo, monospace; color: var(--color-text-muted); }
+  .hl-demo { display: grid; gap: var(--space-4); align-content: start; }
+  .kit-replay { justify-self: start; font: var(--type-button); color: var(--color-link); background: none; border: 0; padding: var(--space-2) 0; cursor: pointer; text-decoration: underline; text-underline-offset: 0.2em; }
+  .dock-demo--side { justify-items: start; }
+  .dock--static.dock--side { padding: var(--space-4) 12rem var(--space-4) var(--space-4); width: auto; }
+  .dock-demo { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; overflow: hidden; }
+  .dock-demo .dock { width: 100%; min-width: 0; }   /* полоса шире карточки — листается внутри, а не обрезается */
+  /* таб-бар с кнопкой меняет вид по ширине рамки страницы (контейнер screen) — в витрине рамка своя: телефон 375px или шире */
+  .dock-screen { container: screen / inline-size; width: 100%; display: grid; justify-items: center; }
+  .dock-screen--phone { max-width: 23.4375rem; }
+  .zapis-demo:target, .zapis-demo:focus { box-shadow: inset 0 0 0 3px var(--color-highlight-handle), var(--shadow); outline: none; }
+  .bg-demo { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); align-items: start; }
+  .bg-sample { container-type: inline-size; display: grid; align-content: center; justify-items: start; gap: var(--space-4); padding: var(--space-6); border-radius: var(--radius-md); box-shadow: inset 0 0 0 1px rgb(23 23 26 / 0.1); overflow: hidden; min-width: 0; }
+  .bg-sample--post { aspect-ratio: 4 / 5; }
+  .bg-sample--slide { aspect-ratio: 16 / 9; }
+  .bg-sample__title { font: var(--type-h2); text-wrap: balance; }
+  .bg-sample--slide .bg-sample__title { font-size: clamp(1.5rem, 1rem + 2cqi, 2.25rem); }
+  .bg-sample__text { font: var(--type-body); }
+  .review-demo { grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); align-items: start; }
+  .review-sample { align-content: start; justify-items: stretch; }
+  .kit-rules { display: grid; gap: var(--space-3); padding-left: 1.1em; max-width: 72ch; }
+  .kit-rules b { font-weight: var(--weight-bold); }
+  /* элементы для слайдов и постов: раскладка примеров */
+  .kit-cal { display: flex; flex-wrap: wrap; gap: var(--space-5); align-items: center; }
+  .kit-cal__info { display: grid; justify-items: start; gap: var(--space-3); }
+  .kit-cal__time { font: var(--type-h2); }
+  .kit-center { display: grid; justify-items: center; align-content: start; }
+}
+/* Положение плашки на «фото» — в слое после компонентов, иначе .tag (position: relative) перебьёт */
+@layer utilities {
+  .doc-demo ul { grid-template-columns: repeat(3, minmax(0, 8.5rem)); justify-content: center; gap: clamp(var(--space-2), 3cqi, var(--space-5)); }   /* образец файлов — плотной группой по центру */
+  .tag-on-photo { position: absolute; left: 50%; bottom: 22%; translate: -50% 0; }
+  .file__thumb.is-missing img { display: none; }   /* нет файла котика — прячем пустую картинку, видна заглушка */
+}
+</style>
+</head>
+<body class="has-dock" data-hl-anim>
+<!-- значки для элементов из слайдов: галочка, крестик, стрелка, замок, Телеграм, глаз, папка (19.10, шаг 235) -->
+<svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false"><defs>
+    <symbol id="i-ok" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-no" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <linearGradient id="tg-grad" x1=".667" x2=".417" y1=".167" y2=".75"><stop offset="0" stop-color="#37AEE2"/><stop offset="1" stop-color="#1E96C8"/></linearGradient>
+    <symbol id="i-telegram" viewBox="0 0 240 240"><circle cx="120" cy="120" r="120" fill="url(#tg-grad)"/><path fill="#C8DAEA" d="M98 175c-3.888 0-3.227-1.468-4.568-5.17L82 132.207 170 80"/><path fill="#A9C9DD" d="M98 175c3 0 4.325-1.372 6-3l16-15.558-19.958-12.035"/><path fill="#FFF" d="M100.04 144.41l48.36 35.729c5.519 3.045 9.501 1.468 10.876-5.123l19.685-92.763c2.015-8.08-3.08-11.746-8.36-9.349l-115.59 44.571c-7.89 3.165-7.843 7.567-1.438 9.528l29.663 9.259 68.673-43.325c3.242-1.966 6.218-.91 3.776 1.258"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" fill="currentColor"/></symbol>
+    <symbol id="star" viewBox="0 0 100 100"><path fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M50.0 2.0 L56.6 34.0 L79.0 24.8 L68.0 43.3 L95.5 47.6 L69.7 57.6 L71.7 76.9 L55.8 66.3 L51.6 97.0 L43.0 67.9 L21.3 74.1 L30.2 57.2 L6.9 53.0 L33.8 43.9 L25.9 23.2 L43.1 32.1Z"/></symbol>
+</defs></svg>
+<a class="skip-link" href="#main">Перейти к содержимому</a>
+<main id="main" class="container kit">
+
+  <header class="kit-head">
+    <p class="eyebrow">Дизайн-система · шаг 6</p>
+    <h1>Дизайн-система <span class="highlight" data-hl="type">сайта эфира</span></h1>
+    <p class="kit-lead">Собираем по шагам. Сейчас готовы основа (фон, цвета, шрифт, шкала текста) и компоненты — заголовок с выделением, меню из папок и картинок, плашки и кнопка «Записаться». Ниже — элементы для слайдов и постов: окна, переписка, списки, цифры, Телеграм, статистика, сравнение тарифов, скрины отзывов; второй фон — бежевый со звёздами</p>
+    <p class="kit-note">Оглавление — таб-бар внизу экрана. Дальше: поля, карточки</p>
+  </header>
+
+  <!-- Основа -->
+  <section class="kit-section" id="base" aria-labelledby="h-base">
+    <p class="eyebrow">Основа</p>
+    <h2 id="h-base">Фон — бумага <span class="highlight">в точку</span></h2>
+    <div class="kit-card">
+      <div class="dots-sample"></div>
+      <p class="kit-note">На всём сайте. Белый, точки #D3D6DC с шагом 18px. Карточки поверх — белые, точки под ними не видны</p>
+    </div>
+    <div class="kit-card">
+      <h3>Второй фон — бежевый со звёздами</h3>
+      <div class="kit-grid bg-demo">
+        <div class="bg-sample bg-sample--post paper-stars">
+          <p class="eyebrow">Пост · 1080×1350</p>
+          <p class="bg-sample__title">Два фона, <span class="highlight">чтобы не&nbsp;надоедало</span></p>
+          <div class="sheet sheet--pad"><p class="bg-sample__text">Карточки поверх — белые, как на&nbsp;точках</p></div>
+        </div>
+        <div class="bg-sample bg-sample--slide paper-stars">
+          <p class="eyebrow">Слайд · 16:9</p>
+          <p class="bg-sample__title">Бежевая бумага <span class="highlight">без точек</span></p>
+        </div>
+      </div>
+      <div class="frame-row"><span class="star" aria-hidden="true"><svg viewBox="0 0 100 100"><use href="#star"/></svg></span><span class="star" style="width: 2rem; rotate: 17deg" aria-hidden="true"><svg viewBox="0 0 100 100"><use href="#star"/></svg></span><span class="star" style="width: 1.25rem; rotate: -12deg" aria-hidden="true"><svg viewBox="0 0 100 100"><use href="#star"/></svg></span></div>
+      <p class="kit-note">Для постов и слайдов — чередуем с бумагой в точку. Бежевый #F5EFE3, точек нет; две крупные жёлтые звезды (жёлтая 300, #F9D876) выходят за углы: справа сверху и слева снизу. Звезда неровная, восьмилучевая — как вырезанная ножницами. Отдельной звездой можно украсить кадр: <code>.star</code>. На сайте этот фон не используется</p>
+      <pre><code>&lt;section class="paper-stars"&gt;…&lt;/section&gt;
+
+&lt;span class="star" aria-hidden="true"&gt;&lt;svg viewBox="0 0 100 100"&gt;&lt;use href="#star"/&gt;&lt;/svg&gt;&lt;/span&gt;</code></pre>
+    </div>
+    <div class="kit-card">
+      <h3>Тень — одна на всё</h3>
+      <div class="demo">
+        <div class="shadow-row">
+          <div class="shadow-sheet">Окно, карточка</div>
+          <img class="shadow-photo" src="img/kot-2.jpg" width="480" height="471" alt="Фото в белой рамке">
+          <img class="shadow-sticker" src="img/stikery/kot-ulybka.webp" width="240" height="204" alt="Стикер без фона">
+        </div>
+      </div>
+      <p class="kit-note">Мягкая, свет сверху, цвет — чернила #17171A, а не чёрный. Одна и та же у всего, что лежит на точках отдельным листом или висит поверх страницы: окна, карточки, уведомления, цитаты, фото, стикеры, таб-бар, кнопка «Записаться». У деталей на листе тени нет — плашки, пузыри, папки и значки файлов, плитки таб-бара, круглые кнопки и ручка, поля: их отделяет цвет</p>
+      <pre><code>/* лист: тонкий край + тень */
+box-shadow: inset 0 0 0 1px var(--color-divider), var(--shadow);
+
+/* картинка без фона (стикер): тень по контуру */
+filter: var(--shadow-contour);</code></pre>
+    </div>
+    <div class="kit-card">
+      <h3>Курсор</h3>
+      <div class="demo">
+        <div class="shadow-row">
+          <figure class="cursor-sample"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24'%3E%3Cpath d='M5 3v15.5l4.2-4 2.6 6.2 2.6-1.1-2.6-6.1 5.9-.1Z' fill='%23FBE6A2' stroke='%23F9D876' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E" width="28" height="28" alt="Жёлтая стрелка"><figcaption>обычный</figcaption></figure>
+          <figure class="cursor-sample"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24'%3E%3Cpath d='M8 3.5a1.5 1.5 0 0 1 3 0V9.5a1.5 1.5 0 0 1 3 0v.5a1.5 1.5 0 0 1 3 0v1a1.5 1.5 0 0 1 3 0V16c0 3-2 5.5-4.5 6H11.5c-1.8 0-3-.8-4-2L4.3 14.6a1.4 1.4 0 0 1 2.2-1.7L8 14.5Z' fill='%23FBE6A2' stroke='%23F9D876' stroke-width='1.2' stroke-linejoin='round'/%3E%3Cpath d='M11 9.5v3.5M14 10v3M17 11v2.5' stroke='%23F9D876' stroke-width='1' stroke-linecap='round' fill='none'/%3E%3C/svg%3E" width="28" height="28" alt="Жёлтый пальчик"><figcaption>ссылки и кнопки</figcaption></figure>
+        </div>
+      </div>
+      <p class="kit-note">Стрелка, как на Маке, в наших цветах: жёлтая #FBE6A2 с контуром #F9D876; на ссылках и кнопках — жёлтый «пальчик», как рука на Маке. В полях ввода — обычная каретка. Только мышь: на телефоне и планшете курсора нет. Варианты, из которых выбирали, — <a href="kursor.html">лист курсора</a></p>
+      <pre><code>/* tokens.css: --cursor и --cursor-link; в компонентах вместо cursor: pointer */
+cursor: var(--cursor-link, pointer);</code></pre>
+    </div>
+  </section>
+
+  <!-- Палитра -->
+  <section class="kit-section" id="palette" aria-labelledby="h-palette">
+    <p class="eyebrow">Палитра</p>
+    <h2 id="h-palette">Цвета <span class="highlight">сайта</span></h2>
+    <p class="kit-note">Только эти цвета — других оттенков на сайте нет. Значения живут в tokens.css; контраст всех пар — на <a href="palette.html">листе палитры</a></p>
+      <div class="kit-card"><h3>Основа</h3><div class="swatches"><figure class="swatch"><i style="--c: var(--paper)"></i><figcaption><b>Бумага</b><span class="swatch-hex"></span><span>фон всего сайта, карточки</span><code>--color-bg</code></figcaption></figure><figure class="swatch"><i style="--c: var(--paper-dot)"></i><figcaption><b>Точки</b><span class="swatch-hex"></span><span>сетка на фоне, шаг 18px</span><code>--color-bg-dots</code></figcaption></figure><figure class="swatch"><i style="--c: var(--beige)"></i><figcaption><b>Бежевая бумага</b><span class="swatch-hex"></span><span>второй фон: без точек, с жёлтыми звёздами</span><code>--color-bg-beige</code></figcaption></figure><figure class="swatch"><i style="--c: var(--ink-900)"></i><figcaption><b>Чернила</b><span class="swatch-hex"></span><span>заголовки, текст, рамки</span><code>--color-text</code></figcaption></figure><figure class="swatch"><i style="--c: var(--ink-600)"></i><figcaption><b>Чернила мягкие</b><span class="swatch-hex"></span><span>подписи</span><code>--color-text-muted</code></figcaption></figure></div></div>
+      <div class="kit-card"><h3>Матча — главный цвет</h3><div class="swatches"><figure class="swatch"><i style="--c: var(--matcha-100)"></i><figcaption><b>Матча 100</b><span class="swatch-hex"></span><span>спокойные блоки</span><code>--color-bg-soft</code></figcaption></figure><figure class="swatch"><i style="--c: var(--matcha-200)"></i><figcaption><b>Матча 200</b><span class="swatch-hex"></span><span>передняя стенка папок</span><code>--color-pastel-2</code></figcaption></figure><figure class="swatch"><i style="--c: var(--matcha-400)"></i><figcaption><b>Матча 400</b><span class="swatch-hex"></span><span>кнопка, задняя стенка папок, тултипы</span><code>--color-accent</code></figcaption></figure><figure class="swatch"><i style="--c: var(--matcha-500)"></i><figcaption><b>Матча 500</b><span class="swatch-hex"></span><span>кнопка при наведении</span><code>--color-accent-hover</code></figcaption></figure><figure class="swatch"><i style="--c: var(--matcha-700)"></i><figcaption><b>Матча 700</b><span class="swatch-hex"></span><span>ссылки, фокус</span><code>--color-link</code></figcaption></figure></div></div>
+      <div class="kit-card"><h3>Голубая растяжка</h3><div class="swatches"><figure class="swatch"><i style="--c: var(--blue-100)"></i><figcaption><b>Голубая 100</b><span class="swatch-hex"></span><span>светлые фоны</span><code>--color-pastel-1-soft</code></figcaption></figure><figure class="swatch"><i style="--c: var(--blue-200)"></i><figcaption><b>Голубая 200</b><span class="swatch-hex"></span><span>основа: папка-вариант, акценты; выделение в заголовках (65%)</span><code>--color-pastel-1</code></figcaption></figure><figure class="swatch"><i style="--c: var(--blue-300)"></i><figcaption><b>Голубая 300</b><span class="swatch-hex"></span><span>только детали: задняя стенка папки, ручки выделения</span><code>--color-pastel-1-deep</code></figcaption></figure></div><p class="kit-note">Основа — 100 и 200. 300 — только тонкие детали, не заливки и не фоны</p></div>
+      <div class="kit-card"><h3>Жёлтая растяжка</h3><div class="swatches"><figure class="swatch"><i style="--c: var(--sun-100)"></i><figcaption><b>Жёлтая 100</b><span class="swatch-hex"></span><span>светлые фоны</span><code>--color-pastel-3-soft</code></figcaption></figure><figure class="swatch"><i style="--c: var(--sun-200)"></i><figcaption><b>Жёлтая 200</b><span class="swatch-hex"></span><span>основа: папка-вариант, акценты</span><code>--color-pastel-3</code></figcaption></figure><figure class="swatch"><i style="--c: var(--sun-300)"></i><figcaption><b>Жёлтая 300</b><span class="swatch-hex"></span><span>только детали: задняя стенка папки</span><code>--color-pastel-3-deep</code></figcaption></figure></div><p class="kit-note">Основа — 100 и 200. 300 — только тонкие детали</p></div>
+      <div class="kit-card"><h3>Сиреневая</h3><div class="swatches"><figure class="swatch"><i style="--c: var(--lilac-100)"></i><figcaption><b>Сиреневая 100</b><span class="swatch-hex"></span><span>светлые фоны: плитка «Подарок»</span><code>--color-pastel-4-soft</code></figcaption></figure><figure class="swatch"><i style="--c: var(--lilac-200)"></i><figcaption><b>Сиреневая 200</b><span class="swatch-hex"></span><span>акценты, плашки</span><code>--color-pastel-4</code></figcaption></figure></div></div>
+      <div class="kit-card"><h3>Служебные</h3><div class="swatches"><figure class="swatch"><i style="--c: var(--gray-150)"></i><figcaption><b>Серый пузырь</b><span class="swatch-hex"></span><span>плашка над заголовком</span><code>--color-eyebrow</code></figcaption></figure><figure class="swatch"><i style="--c: color-mix(in srgb, var(--color-tag) calc(var(--tag-opacity) * 100%), transparent)"></i><figcaption><b>Тёмный тултип</b><span class="swatch-hex"></span><span>отметки на фото</span><code>--color-tag</code></figcaption></figure><figure class="swatch"><i style="--c: var(--color-glass)"></i><figcaption><b>Стекло</b><span class="swatch-hex"></span><span>кнопка «Записаться»</span><code>--color-glass</code></figcaption></figure><figure class="swatch"><i style="--c: var(--red-100)"></i><figcaption><b>Ошибка — фон</b><span class="swatch-hex"></span><span>подложка сообщения об ошибке</span><code>--color-danger-muted</code></figcaption></figure><figure class="swatch"><i style="--c: var(--red-300)"></i><figcaption><b>Ошибка — отметка</b><span class="swatch-hex"></span><span>рамка поля, точка; текст ошибки — чернилами</span><code>--color-danger</code></figcaption></figure></div><p class="kit-note">Ошибка — нежная, в тон палитре: подложка #FDECEA, отметка #EFA6A0, текст — чернилами</p></div>
+  </section>
+
+  <!-- Шрифт -->
+  <section class="kit-section" id="font" aria-labelledby="h-font">
+    <p class="eyebrow">Шрифт</p>
+    <h2 id="h-font">Cygre — <span class="highlight">один на всё</span></h2>
+    <p class="kit-note">Cygre (RandomMaerks), три начертания. Файлы — в папке fonts/, оригинальные .ttf: лицензия запрещает менять расширение файла</p>
+    <div class="kit-card font-card">
+      <div class="font-row"><span class="font-meta">400 · Regular<br><small>заголовки, текст</small></span><p class="font-sample" style="font-weight: 400">Бесплатный эфир про нейронку</p></div>
+      <div class="font-row"><span class="font-meta">500 · Medium<br><small>подписи, имена в меню</small></span><p class="font-sample" style="font-weight: 500">Бесплатный эфир про нейронку</p></div>
+      <div class="font-row"><span class="font-meta">700 · Bold<br><small>подзаголовки, тултипы, кнопки</small></span><p class="font-sample" style="font-weight: 700">Бесплатный эфир про нейронку</p></div>
+      <p class="font-abc">АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ<br>абвгдеёжзийклмнопрстуфхцчшщъыьэюя<br>0123456789 «» — · , . : ! ?</p>
+      <p class="kit-note">Знака «№» в шрифте нет — подставится системный. Файлы и подключение — <a href="Шрифты.md">реестр шрифтов</a></p>
+    </div>
+  </section>
+
+  <!-- Типографика -->
+  <section class="kit-section" id="type" aria-labelledby="h-type">
+    <p class="eyebrow">Типографика</p>
+    <h2 id="h-type">Роли <span class="highlight">текста</span></h2>
+    <p class="kit-note">Восемь ролей с именами, как в Figma. У каждой роли размер, жирность и межстрочный уже внутри. У заголовков межстрочный плавает: чем крупнее шрифт, тем плотнее строки — берём роль целиком, жирность отдельно не ставим. В CSS — <code>font: var(--type-subtitle)</code>, в разметке — класс <code>.t-subtitle</code></p>
+    <div class="kit-card">
+      <div>
+        <div class="type-row">
+          <div class="type-meta"><b>H1 · Главный заголовок</b><span>40 → 88px · 400 · строка 1,06 → 0,96</span><span>один на страницу</span><code>--type-h1</code><code>.t-h1</code></div>
+          <p class="t-h1">Бесплатный эфир</p>
+        </div>
+        <div class="type-row">
+          <div class="type-meta"><b>H2 · Заголовок блока</b><span>32 → 56px · 400 · строка 1,10 → 1,01</span><code>--type-h2</code><code>.t-h2</code></div>
+          <p class="t-h2">Что будет на эфире</p>
+        </div>
+        <div class="type-row">
+          <div class="type-meta"><b>H3 · Заголовок карточки</b><span>19 → 22px · 700 · строка 1,26 → 1,21</span><code>--type-h3</code><code>.t-h3</code></div>
+          <p class="t-h3">5 рабочих кейсов</p>
+        </div>
+        <div class="type-row">
+          <div class="type-meta"><b>Подзаголовок</b><span>17 → 18px · 400 · строка 1,4</span><span>текст под заголовком — обычной жирности</span><code>--type-subtitle</code><code>.t-subtitle</code></div>
+          <p class="t-subtitle">Для веб-дизайнеров и тех, кто только собирается им стать</p>
+        </div>
+        <div class="type-row">
+          <div class="type-meta"><b>Текст</b><span>17px · 400 · строка 1,55</span><code>--type-body</code><code>.t-body</code></div>
+          <p class="t-body">Покажу реальные задачи из своей работы: с каким запросом пришёл клиент, что мы сделали и чем именно помог ИИ</p>
+        </div>
+        <div class="type-row">
+          <div class="type-meta"><b>Кнопка</b><span>16px · 700 · строка 1,2</span><span>кнопки, поля, пункты меню</span><code>--type-button</code><code>.t-button</code></div>
+          <p class="t-button">Записаться на эфир</p>
+        </div>
+        <div class="type-row">
+          <div class="type-meta"><b>Цитата</b><span>28 → 44px · 700 · строка 1,14 → 1,04</span><span>название в плашке без кнопок</span><code>--type-quote</code><code>.t-quote</code></div>
+          <p class="t-quote">Шпаргалка</p>
+        </div>
+        <div class="type-row">
+          <div class="type-meta"><b>Подпись</b><span>14px · 500 · капслок · строка 1,4</span><code>--type-caption</code><code>.t-caption</code></div>
+          <p class="t-caption">20 октября · 19:00 по Москве</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo type-demo">
+      <p class="demo-label">Как собирается блок</p>
+      <p class="eyebrow">20 октября · 19:00</p>
+      <h2>Бесплатный эфир про <span class="highlight">нейронку</span></h2>
+      <p class="t-subtitle">Для веб-дизайнеров и тех, кто только собирается им стать</p>
+      <p class="t-body">На эфире покажу 5 своих рабочих кейсов: с чем пришёл клиент и чем мне помогла нейронка</p>
+      <p class="kit-note">Пузырь → H2 → подзаголовок → текст. Подзаголовок — обычной жирности, крупнее текста</p>
+    </div>
+  </section>
+
+  <!-- Заголовок с выделением -->
+  <section class="kit-section" id="highlight" aria-labelledby="h-hl">
+    <p class="eyebrow">Компонент 1</p>
+    <h2 id="h-hl">Заголовок <span class="highlight">с выделением</span></h2>
+    <p class="kit-note">Как выделенный текст в редакторе: полупрозрачная подложка, линия в начале с точкой сверху и линия в конце с точкой снизу. Переносится на любое число строк, размеры линии и точек растут вместе с заголовком</p>
+
+    <div class="demo center">
+      <p class="demo-label">Первый экран</p>
+      <h1>Бесплатный эфир про то, как я укротила нейронку <span class="highlight">и заставила её зарабатывать мне деньги</span></h1>
+    </div>
+
+    <div class="kit-grid">
+      <div class="demo">
+        <p class="demo-label">Заголовок блока</p>
+        <h2>Кому будет <span class="highlight">полезен эфир</span></h2>
+      </div>
+      <div class="demo">
+        <p class="demo-label">Заголовок блока</p>
+        <h2>Залетайте на эфир, <span class="highlight">записи не будет</span></h2>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Анимация — зависит от того, где выделение</h3>
+      <div class="kit-grid">
+        <div class="demo hl-demo">
+          <p class="demo-label">В середине фразы — выделяется</p>
+          <h2>На эфире покажу <span class="highlight">5 своих рабочих кейсов</span>: с чем пришёл клиент</h2>
+          <button class="kit-replay" type="button">Показать ещё раз</button>
+        </div>
+        <div class="demo hl-demo">
+          <p class="demo-label">С краю фразы — печатается</p>
+          <h2>Кому будет <span class="highlight">полезен эфир</span></h2>
+          <button class="kit-replay" type="button">Показать ещё раз</button>
+        </div>
+      </div>
+      <ul class="rules">
+        <li><b>В середине</b> — текст на месте, подложка тянется от начальной ручки к концу, конечная ручка едет вместе с краем, как будто выделяют мышью. 0,5–1,4 с, зависит от длины</li>
+        <li><b>С краю</b> (в конце или в начале фразы) — мигает курсор, потом буквы печатаются по одной, выделение растёт вместе с ними, как на первом экране</li>
+        <li>Какой случай — скрипт понимает сам по тексту вокруг. Можно задать явно: <code>data-hl="select"</code>, <code>"type"</code> или <code>"off"</code></li>
+        <li>Запускается один раз, когда заголовок попадает на экран. Без скрипта и при «уменьшить движение» выделение видно сразу</li>
+      </ul>
+      <pre><code>&lt;body data-hl-anim&gt; …
+&lt;h2&gt;На эфире покажу &lt;span class="highlight"&gt;5 своих рабочих кейсов&lt;/span&gt;: …&lt;/h2&gt;
+&lt;script src="highlight.js" defer&gt;&lt;/script&gt;</code></pre>
+      <p class="kit-note">На первом экране, где выделение видно сразу, ставь <code>data-hl="type"</code> или <code>"select"</code> явно — тогда фраза не мелькнёт готовой, пока грузится скрипт</p>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: color-mix(in srgb, var(--color-highlight) var(--highlight-opacity), transparent)"></i><span><b>Подложка</b>#B5DCF6 на 65% — видны точки фона · <code>--color-highlight</code>, <code>--highlight-opacity</code></span></li>
+        <li><i style="--c: var(--color-highlight-handle)"></i><span><b>Линии и точки</b>#8EC9F3 · <code>--color-highlight-handle</code></span></li>
+        <li><i style="--c: var(--color-text)"></i><span><b>Текст</b>#17171A — контраст на подложке 14,4:1</span></li>
+      </ul>
+      <p class="kit-note">Линия — 0,035 от размера шрифта (не тоньше 2px), точка — 0,22. На первом экране это 3px и 19px, на телефоне — 2px и 9px</p>
+      <pre><code>&lt;h1&gt;Бесплатный эфир про то, как я укротила нейронку
+  &lt;span class="highlight"&gt;и заставила её зарабатывать мне деньги&lt;/span&gt;
+&lt;/h1&gt;</code></pre>
+      <h3>Правила</h3>
+      <ul class="rules">
+        <li>Одно выделение на заголовок — иначе непонятно, что главное</li>
+        <li>Выделяем смысловой кусок, а не одно служебное слово</li>
+        <li>Для заголовков блоков и первого экрана; в мелком тексте не используем</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Меню-папки -->
+  <section class="kit-section" id="folders" aria-labelledby="h-folders">
+    <p class="eyebrow">Компонент 2</p>
+    <h2 id="h-folders">Меню <span class="highlight">из папок</span></h2>
+    <p class="kit-note">Кнопки меню в виде папок, как в Finder: иконка и подпись. При наведении папка приподнимается и приоткрывается. Текущий раздел — подпись на подложке выделения, как выбранный файл</p>
+
+    <div class="demo">
+      <p class="demo-label">Меню сайта</p>
+      <nav class="icon-menu" aria-label="Разделы страницы (пример)">
+        <ul>
+          <li><a class="folder" href="#folders"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Кому полезен</span></a></li>
+          <li><a class="folder folder--blue" href="#folders"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Узнаёте себя</span></a></li>
+          <li><a class="folder folder--sun" href="#folders" aria-current="true"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Что будет</span></a></li>
+          <li><a class="folder" href="#folders"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Запись</span></a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="kit-grid">
+      <div class="kit-card">
+        <h3>Состояния</h3>
+        <nav class="icon-menu icon-menu--wrap" aria-label="Состояния папки (пример)">
+          <ul>
+          <li><a class="folder" href="#folders"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Обычная</span></a></li>
+          <li><a class="folder is-hover" href="#folders"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Наведение</span></a></li>
+          <li><a class="folder is-focus" href="#folders"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Фокус</span></a></li>
+          <li><a class="folder" href="#folders" aria-current="true"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Текущий раздел</span></a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="kit-card">
+        <h3>Цвета — если разделы хочется различать</h3>
+        <nav class="icon-menu icon-menu--wrap" aria-label="Цвета папки (пример)">
+          <ul>
+          <li><a class="folder" href="#folders"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Матча</span></a></li>
+          <li><a class="folder folder--blue" href="#folders"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Голубая</span></a></li>
+          <li><a class="folder folder--sun" href="#folders"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Жёлтая</span></a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--color-accent)"></i><span><b>Задняя стенка с ушком</b>матча #B0B97B · <code>--color-accent</code></span></li>
+        <li><i style="--c: var(--color-pastel-2)"></i><span><b>Передняя стенка</b>#D9DFA2 · <code>--color-pastel-2</code></span></li>
+        <li><i style="--c: var(--color-text)"></i><span><b>Подпись</b>Cygre 500, 16px, #17171A</span></li>
+      </ul>
+      <p class="kit-note">Иконка 56px на телефоне → 76px на десктопе. Вся папка с подписью — одна ссылка, зона нажатия больше 44×44</p>
+      <pre><code>&lt;nav class="icon-menu" aria-label="Разделы страницы"&gt;&lt;ul&gt;
+  &lt;li&gt;&lt;a class="folder" href="#who"&gt;
+    &lt;svg class="folder__icon" …&gt;…&lt;/svg&gt;
+    &lt;span class="folder__label"&gt;Кому полезен&lt;/span&gt;
+  &lt;/a&gt;&lt;/li&gt;
+  …
+&lt;/ul&gt;&lt;/nav&gt;</code></pre>
+      <p class="kit-note">Подписи — сокращённые названия блоков из прототипа: «Кому будет полезен эфир», «Узнаёте себя», «Что будет на эфире», «Запись». Поменяй, если нужно</p>
+    </div>
+  </section>
+
+  <!-- Текстовые плашки -->
+  <section class="kit-section" id="tags" aria-labelledby="h-tags">
+    <p class="eyebrow">Компонент 3</p>
+    <h2 id="h-tags">Текстовые <span class="highlight">плашки</span></h2>
+    <p class="kit-note">Тултип как отметка человека на фото в Instagram: тёмная полупрозрачная таблетка, белый текст, стрелка. Сквозь плашку видно то, что под ней. Без стрелки плашек не бывает</p>
+
+    <div class="demo tag-photo-demo">
+      <p class="demo-label">На фото</p>
+      <div class="photo-stub" role="img" aria-label="Место под фото Татьяны">
+        <span class="photo-stub-note">здесь будет твоё фото</span>
+        <span class="tag tag-on-photo">КруТа в дизайне</span>
+      </div>
+    </div>
+
+    <div class="kit-grid">
+      <div class="kit-card">
+        <h3>Информация об эфире</h3>
+        <div class="tag-row">
+          <span class="tag tag--lilac">20 октября · 19:00 по Москве</span>
+          <span class="tag tag--blue">Бесплатно</span>
+          <span class="tag tag--sun">Записи не будет</span>
+          <span class="tag tag--matcha">Для кого</span>
+        </div>
+      </div>
+      <div class="kit-card">
+        <h3>Стрелка и цвет</h3>
+        <div class="tag-row">
+          <span class="tag">вверх</span>
+          <span class="tag tag--down">вниз</span>
+        </div>
+        <div class="tag-row">
+          <span class="tag tag--blue">голубой</span>
+          <span class="tag tag--blue tag--down">матча вниз</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: color-mix(in srgb, var(--color-tag) calc(var(--tag-opacity) * 100%), transparent)"></i><span><b>Плашка и стрелка</b>#17171A, одна форма; вся плашка прозрачна на 22%, без размытия · <code>--color-tag</code>, <code>--tag-opacity</code></span></li>
+        <li><i style="--c: var(--color-on-tag)"></i><span><b>Текст</b>белый, Cygre 700, 14px · <code>--color-on-tag</code></span></li>
+        <li><i style="--c: var(--color-pastel-1)"></i><span><b>Цветные</b>дополнительные цвета палитры: голубой, жёлтый, сиреневый (200), разные у соседних — текст #17171A, контраст 11,8–14,3:1</span></li>
+      </ul>
+      <p class="kit-note">Контраст белого текста на плашке поверх белого фона — 8,8:1, поверх тёмного фото — ещё выше. Стрелка — 0,45 от размера текста, скругление — 0,65</p>
+      <pre><code>&lt;span class="tag"&gt;КруТа в дизайне&lt;/span&gt;            стрелка вверх
+&lt;span class="tag tag--down"&gt;…&lt;/span&gt;               стрелка вниз
+&lt;span class="tag tag--sun"&gt;Бесплатно&lt;/span&gt;      матча — для навигации и фактов</code></pre>
+      <p class="kit-note">Плашек без стрелки не бывает — только тултипы</p>
+    </div>
+  </section>
+
+  <!-- Кнопка-слайдер -->
+  <section class="kit-section" id="slide" aria-labelledby="h-slide">
+    <p class="eyebrow">Компонент 4</p>
+    <h2 id="h-slide">Кнопка <span class="highlight">«Записаться»</span></h2>
+    <p class="kit-note">Как «slide to answer» в iPhone: голубая стеклянная таблетка, белая ручка со стрелкой, по тексту бежит блик. Можно нажать, а можно утянуть ручку вправо до конца</p>
+
+    <div class="demo slide-demo">
+      <p class="demo-label">Попробуй: нажми или потяни вправо</p>
+      <a class="slide-cta" href="#zapis-demo" draggable="false"><span class="slide-cta__knob" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="slide-cta__text"><span class="slide-cta__label">Записаться на эфир</span></span></a>
+    </div>
+
+    <div class="kit-grid">
+      <div class="kit-card">
+        <h3>Поверх фото</h3>
+        <div class="photo-stub photo-stub--short"><a class="slide-cta" href="#zapis-demo" draggable="false"><span class="slide-cta__knob" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="slide-cta__text"><span class="slide-cta__label">Записаться на эфир</span></span></a></div>
+      </div>
+      <div class="kit-card">
+        <h3>Состояния</h3>
+        <div class="slide-states">
+          <p class="demo-label">Обычная</p>
+          <a class="slide-cta" href="#slide" draggable="false"><span class="slide-cta__knob" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="slide-cta__text"><span class="slide-cta__label">Записаться на эфир</span></span></a>
+          <p class="demo-label">Тянут — текст гаснет</p>
+          <a class="slide-cta" href="#slide" draggable="false" style="--sc-x: 8rem; --sc-progress: 0.45"><span class="slide-cta__knob" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="slide-cta__text"><span class="slide-cta__label">Записаться на эфир</span></span></a>
+          <p class="demo-label">Дотянули — ручка становится голубой</p>
+          <a class="slide-cta is-done" href="#slide" draggable="false" style="--sc-x: calc(min(100cqi, 26rem) - 5rem); --sc-progress: 1"><span class="slide-cta__knob" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="slide-cta__text"><span class="slide-cta__label">Записаться на эфир</span></span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="kit-card zapis-demo" id="zapis-demo" tabindex="-1">
+      <h3>Здесь будет форма записи</h3>
+      <p class="kit-note">Кнопка ведёт сюда — и кликом, и свайпом. Если сработало, этот блок подсветился</p>
+    </div>
+
+    <div class="kit-card">
+      <h3>Как работает</h3>
+      <ul class="rules">
+        <li><b>Клик или тап</b> в любом месте кнопки — переход к форме записи</li>
+        <li><b>Свайп</b> — тянем ручку или палец по кнопке вправо. Дотянули до 85% пути — переход; не дотянули — ручка возвращается</li>
+        <li><b>Клавиатура</b> — Tab до кнопки и Enter, фокус виден</li>
+        <li><b>Без JavaScript</b> — обычная ссылка, клик работает</li>
+        <li>Вертикально страница листается как обычно, кнопка не мешает прокрутке пальцем</li>
+        <li>Если в системе включено «уменьшить движение» — блик не бежит</li>
+      </ul>
+      <ul class="anatomy">
+        <li><i style="--c: var(--color-glass)"></i><span><b>Стекло</b>голубое #B5DCF6 на 60% + размытие фона · <code>--color-glass</code></span></li>
+        <li><i style="--c: var(--paper)"></i><span><b>Ручка</b>белая, тонкая стрелка в цвет кнопки #8EC9F3 · 70px, кнопка — 80px</span></li>
+        <li><i style="--c: var(--color-on-glass)"></i><span><b>Текст</b>#17171A, Cygre 24px (на телефоне 19px), по центру зоны без ручки — контраст 13,7:1 на белом, ~5:1 даже на тёмном фото</span></li>
+      </ul>
+      <pre><code>&lt;a class="slide-cta" href="#zapis" draggable="false"&gt;
+  &lt;span class="slide-cta__knob" aria-hidden="true"&gt;&lt;svg …стрелка…&gt;&lt;/svg&gt;&lt;/span&gt;
+  &lt;span class="slide-cta__text"&gt;&lt;span class="slide-cta__label"&gt;Записаться на эфир&lt;/span&gt;&lt;/span&gt;
+&lt;/a&gt;
+&lt;script src="slide-cta.js" defer&gt;&lt;/script&gt;</code></pre>
+    </div>
+  </section>
+
+  <!-- Картинки-файлы -->
+  <section class="kit-section" id="files" aria-labelledby="h-files">
+    <p class="eyebrow">Компонент 5</p>
+    <h2 id="h-files">Меню <span class="highlight">из картинок</span></h2>
+    <p class="kit-note">Пункты меню в виде файлов-картинок на рабочем столе Mac: кот-стикер с прозрачным фоном и лёгкой тенью по контуру, имя файла под ней. Текущий пункт — серый квадрат за миниатюрой и подложка под именем, как выбранный файл в Finder. Кликабельные, как папки</p>
+
+    <div class="demo">
+      <p class="demo-label">Котики — пункты меню</p>
+      <nav class="icon-menu" aria-label="Котики-пункты (пример)">
+        <ul>
+          <li><a class="file" href="#files"><span class="file__thumb file__thumb--sticker"><img src="img/stikery/kot-noutbuk.webp" width="240" height="194" alt="" onerror="this.parentElement.classList.add('is-missing')"><span class="file__ph">котик 1</span></span><span class="file__label">запись.png</span></a></li>
+          <li><a class="file" href="#files" aria-current="true"><span class="file__thumb file__thumb--sticker"><img src="img/stikery/kot-kist.webp" width="240" height="157" alt="" onerror="this.parentElement.classList.add('is-missing')"><span class="file__ph">котик 2</span></span><span class="file__label">кейсы.png</span></a></li>
+          <li><a class="file" href="#files"><span class="file__thumb file__thumb--sticker"><img src="img/stikery/kot-ulybka.webp" width="240" height="204" alt="" onerror="this.parentElement.classList.add('is-missing')"><span class="file__ph">котик 3</span></span><span class="file__label">бонусы.png</span></a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="kit-grid">
+      <div class="kit-card">
+        <h3>Состояния</h3>
+        <nav class="icon-menu icon-menu--wrap" aria-label="Состояния картинки (пример)">
+          <ul>
+          <li><a class="file" href="#files"><span class="file__thumb file__thumb--sticker"><img src="img/stikery/kot-noutbuk.webp" width="240" height="194" alt="" onerror="this.parentElement.classList.add('is-missing')"><span class="file__ph">котик 1</span></span><span class="file__label">обычный.png</span></a></li>
+          <li><a class="file is-hover" href="#files"><span class="file__thumb file__thumb--sticker"><img src="img/stikery/kot-kist.webp" width="240" height="157" alt="" onerror="this.parentElement.classList.add('is-missing')"><span class="file__ph">котик 2</span></span><span class="file__label">курсор.png</span></a></li>
+          <li><a class="file is-focus" href="#files"><span class="file__thumb file__thumb--sticker"><img src="img/stikery/kot-ulybka.webp" width="240" height="204" alt="" onerror="this.parentElement.classList.add('is-missing')"><span class="file__ph">котик 3</span></span><span class="file__label">фокус.png</span></a></li>
+          <li><a class="file" href="#files" aria-current="true"><span class="file__thumb file__thumb--sticker"><img src="img/stikery/kot-noutbuk.webp" width="240" height="194" alt="" onerror="this.parentElement.classList.add('is-missing')"><span class="file__ph">котик 1</span></span><span class="file__label">текущий.png</span></a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="kit-card">
+        <h3>Вместе с папками</h3>
+        <nav class="icon-menu icon-menu--wrap" aria-label="Папки и картинки (пример)">
+          <ul>
+          <li><a class="folder" href="#files"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Кому полезен</span></a></li>
+          <li><a class="folder" href="#files"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Что будет</span></a></li>
+          <li><a class="file" href="#files"><span class="file__thumb file__thumb--sticker"><img src="img/stikery/kot-noutbuk.webp" width="240" height="194" alt="" onerror="this.parentElement.classList.add('is-missing')"><span class="file__ph">котик 1</span></span><span class="file__label">запись.png</span></a></li>
+          <li><a class="file" href="#files"><span class="file__thumb file__thumb--sticker"><img src="img/stikery/kot-kist.webp" width="240" height="157" alt="" onerror="this.parentElement.classList.add('is-missing')"><span class="file__ph">котик 2</span></span><span class="file__label">кейсы.png</span></a></li>
+          <li><a class="file" href="#files"><span class="file__thumb file__thumb--sticker"><img src="img/stikery/kot-ulybka.webp" width="240" height="204" alt="" onerror="this.parentElement.classList.add('is-missing')"><span class="file__ph">котик 3</span></span><span class="file__label">бонусы.png</span></a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Все коты-стикеры</h3>
+      <div class="sticker-grid"><figure class="sticker-cell"><img src="img/stikery/kot-noutbuk.webp" width="240" height="194" alt="" loading="lazy"><figcaption>kot-noutbuk.webp</figcaption></figure><figure class="sticker-cell"><img src="img/stikery/kot-kist.webp" width="240" height="157" alt="" loading="lazy"><figcaption>kot-kist.webp</figcaption></figure><figure class="sticker-cell"><img src="img/stikery/kot-ulybka.webp" width="240" height="204" alt="" loading="lazy"><figcaption>kot-ulybka.webp</figcaption></figure><figure class="sticker-cell"><img src="img/stikery/kot-yazyk.webp" width="240" height="182" alt="" loading="lazy"><figcaption>kot-yazyk.webp</figcaption></figure></div>
+      <p class="kit-note">Четыре кота, прозрачный фон, по 10–12 КБ — папка img/stikery/. В меню: за ноутбуком — «запись», с кистью — «кейсы», улыбка — «бонусы»; с языком — запасной</p>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--paper)"></i><span><b>Кот-стикер</b>прозрачный фон, тень по контуру; для фото — вариант с белой рамкой (без <code>file__thumb--sticker</code>)</span></li>
+        <li><i style="--c: color-mix(in srgb, var(--color-text) 10%, transparent)"></i><span><b>Выбранный пункт</b>серый квадрат за миниатюрой + подложка #D9DFA2 под именем</span></li>
+        <li><i style="--c: var(--color-text)"></i><span><b>Имя файла</b>Cygre 500, 13–16px, с расширением, как в Finder</span></li>
+      </ul>
+      <pre><code>&lt;li&gt;&lt;a class="file" href="#cases"&gt;
+  &lt;span class="file__thumb file__thumb--sticker"&gt;&lt;img src="img/stikery/kot-kist.webp" alt=""&gt;&lt;/span&gt;
+  &lt;span class="file__label"&gt;кейсы.png&lt;/span&gt;
+&lt;/a&gt;&lt;/li&gt;</code></pre>
+      <p class="kit-note">Коты-стикеры — в папке img/stikery/ (по 10–12 КБ, прозрачный фон). Имена файлов и куда ведут котики — пока заготовки: «запись», «кейсы», «бонусы». Поменяй, если нужно</p>
+    </div>
+  </section>
+
+  <!-- Файл для скачивания -->
+  <section class="kit-section" id="doc" aria-labelledby="h-doc">
+    <p class="eyebrow">Компонент 6</p>
+    <h2 id="h-doc">Файл <span class="highlight">для скачивания</span></h2>
+    <p class="kit-note">Как значок файла в Finder: под значком имя с расширением и строка с размером или длительностью. Три вида: документ — лист с загнутым уголком и картинкой по центру, архив — тот же лист с «молнией», видео — кадр-обложка с кнопкой «плей». Размер — как у папок: по площади как папка. Плоские, без тени. PDF с картинкой — белый лист, архив — цветной, как папка</p>
+
+    <div class="demo">
+      <p class="demo-label">Документ, архив, видео</p>
+      <div class="icon-menu icon-menu--wrap doc-demo">
+        <ul>
+          <li><a class="file" href="#doc"><span class="file__doc"><img src="img/kot-podarok.webp" width="320" height="320" alt=""></span><span class="file__label">Шпаргалка.pdf</span><span class="file__info">1,2&nbsp;МБ</span></a></li>
+          <li><a class="file" href="#doc"><span class="file__doc"><span class="file__zip"></span><span class="file__type">ZIP</span></span><span class="file__label">Инструкция.zip</span><span class="file__info">198&nbsp;КБ</span></a></li>
+          <li><a class="file" href="video/za-rabotoy.mp4"><span class="file__video"><img src="img/za-rabotoy-poster.webp" width="540" height="540" alt=""></span><span class="file__label">za-rabotoy.mp4</span><span class="file__info">00:06</span></a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="demo">
+      <p class="demo-label">Архивы — цвета как у папок</p>
+      <div class="icon-menu icon-menu--wrap doc-demo">
+        <ul>
+          <li><a class="file" href="#doc"><span class="file__doc file__doc--matcha"><span class="file__zip"></span><span class="file__type">ZIP</span></span><span class="file__label">Шпаргалка.zip</span><span class="file__info">1,2&nbsp;МБ</span></a></li>
+          <li><a class="file" href="#doc"><span class="file__doc file__doc--blue"><span class="file__zip"></span><span class="file__type">ZIP</span></span><span class="file__label">Инструкция.zip</span><span class="file__info">198&nbsp;КБ</span></a></li>
+          <li><a class="file" href="#doc"><span class="file__doc file__doc--sun"><span class="file__zip"></span><span class="file__type">ZIP</span></span><span class="file__label">Шаблон.zip</span><span class="file__info">640&nbsp;КБ</span></a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="kit-grid">
+      <div class="kit-card">
+        <h3>Наведение</h3>
+        <div class="icon-menu icon-menu--wrap">
+          <ul>
+          <li><a class="file is-hover" href="#doc"><span class="file__doc"><img src="img/kot-podarok.webp" width="320" height="320" alt=""></span><span class="file__label">Шпаргалка.pdf</span><span class="file__info">1,2&nbsp;МБ</span></a></li>
+          <li><a class="file is-hover" href="#doc"><span class="file__doc"><span class="file__zip"></span><span class="file__type">ZIP</span></span><span class="file__label">Инструкция.zip</span><span class="file__info">198&nbsp;КБ</span></a></li>
+          <li><a class="file is-hover" href="video/za-rabotoy.mp4"><span class="file__video"><img src="img/za-rabotoy-poster.webp" width="540" height="540" alt=""></span><span class="file__label">za-rabotoy.mp4</span><span class="file__info">00:06</span></a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="kit-card">
+        <h3>Фокус с клавиатуры</h3>
+        <div class="icon-menu icon-menu--wrap">
+          <ul>
+          <li><a class="file is-focus" href="#doc"><span class="file__doc"><img src="img/kot-podarok.webp" width="320" height="320" alt=""></span><span class="file__label">Шпаргалка.pdf</span><span class="file__info">1,2&nbsp;МБ</span></a></li>
+          <li><a class="file is-focus" href="#doc"><span class="file__doc"><span class="file__zip"></span><span class="file__type">ZIP</span></span><span class="file__label">Инструкция.zip</span><span class="file__info">198&nbsp;КБ</span></a></li>
+          <li><a class="file is-focus" href="video/za-rabotoy.mp4"><span class="file__video"><img src="img/za-rabotoy-poster.webp" width="540" height="540" alt=""></span><span class="file__label">za-rabotoy.mp4</span><span class="file__info">00:06</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--paper)"></i><span><b>Документ (PDF)</b>белый лист, тонкий край, загнутый уголок — серый #E9E9EB; картинка по центру — с фоном. Высота — ширина папки, ширина — ¾ её: площадь как у папки</span></li>
+        <li><i style="--c: var(--color-pastel-2)"></i><span><b>Архив</b>цветной, как папка: лист — цвет передней стенки, уголок, «молния» и ZIP — задней. Без модификатора — матча</span></li>
+        <li><i style="--c: var(--color-pastel-1)"></i><span><b>Цвет архива</b><code>file__doc--blue</code>, <code>--sun</code>; без модификатора — матча</span></li>
+        <li><i style="--c: color-mix(in srgb, var(--ink-900) 30%, transparent)"></i><span><b>Видео</b>квадратный кадр площадью как папка, с тонким краем и общей тенью, как все фото; «плей» — белое кольцо и треугольник на тёмном стекле</span></li>
+        <li><i style="--c: var(--color-link)"></i><span><b>Размер, длительность</b>под именем, цветом ссылок #5E6529 — синего в палитре нет</span></li>
+      </ul>
+      <pre><code>&lt;a class="file" href="files/instruktsiya.zip" download&gt;
+  &lt;span class="file__doc file__doc--blue"&gt;&lt;span class="file__zip"&gt;&lt;/span&gt;&lt;span class="file__type"&gt;ZIP&lt;/span&gt;&lt;/span&gt;
+  &lt;span class="file__label"&gt;Инструкция.zip&lt;/span&gt;
+  &lt;span class="file__info"&gt;198 КБ&lt;/span&gt;
+&lt;/a&gt;
+
+&lt;!-- документ с картинкой --&gt;   &lt;span class="file__doc"&gt;&lt;img src="…" alt=""&gt;&lt;/span&gt;
+&lt;!-- видео --&gt;                  &lt;span class="file__video"&gt;&lt;img src="обложка.webp" alt=""&gt;&lt;/span&gt;</code></pre>
+      <p class="kit-note">Обложку видео выберем отдельно — пока стоит заставка ролика из «Что будет». Имена и размеры файлов — примеры</p>
+    </div>
+  </section>
+
+  <!-- Плашка над заголовком -->
+  <section class="kit-section" id="eyebrow" aria-labelledby="h-eyebrow">
+    <p class="eyebrow">Компонент 7</p>
+    <h2 id="h-eyebrow">Плашка <span class="highlight">над заголовком</span></h2>
+    <p class="kit-note">Как входящее сообщение в iMessage: светло-серый пузырь, обычный тёмный текст, хвостик снизу слева. На сайте — только на первом экране, над главным заголовком; в остальных блоках его нет (решение 12.10)</p>
+
+    <div class="demo eyebrow-demo">
+      <p class="eyebrow">Для веб-дизайнеров</p>
+      <h2>Бесплатный эфир про то, как я укротила нейронку <span class="highlight">и заставила её зарабатывать мне деньги</span></h2>
+    </div>
+
+    <div class="kit-grid">
+      <div class="demo eyebrow-demo">
+        <p class="eyebrow">Блок 2</p>
+        <h2>Кому будет <span class="highlight">полезен эфир</span></h2>
+      </div>
+      <div class="demo eyebrow-demo">
+        <p class="eyebrow">20 октября · 19:00</p>
+        <h2>Залетайте на эфир, <span class="highlight">записи не будет</span></h2>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--color-eyebrow)"></i><span><b>Пузырь и хвостик</b>#E9E9EB · <code>--color-eyebrow</code></span></li>
+        <li><i style="--c: var(--color-on-eyebrow)"></i><span><b>Текст</b>#17171A, Cygre 400, 17px — контраст 14,7:1</span></li>
+      </ul>
+      <pre><code>&lt;p class="eyebrow"&gt;Что будет на эфире&lt;/p&gt;
+&lt;h2&gt;…&lt;/h2&gt;</code></pre>
+      <p class="kit-note">Только в одну строку — текст держим коротким, до ~30 знаков. Длинная фраза идёт в подзаголовок, а не в пузырь</p>
+    </div>
+  </section>
+
+  <!-- Таб-бар -->
+  <section class="kit-section" id="dock" aria-labelledby="h-dock">
+    <p class="eyebrow">Компонент 8</p>
+    <h2 id="h-dock">Таб-бар <span class="highlight">как Dock</span></h2>
+    <p class="kit-note">Вместо меню. На ноутбуке — сбоку слева, на большом мониторе (от 19", окно от 1800px), планшете и телефоне — внизу; режим выбирает скрипт сам. Светлая стеклянная полоса, в ней плитки: папки и котики. На десктопе наведи мышью — плитка увеличивается, соседи чуть меньше, над ней тултип с названием. На телефоне наведения нет — под плитками подписи. Текущий раздел — точка, как у открытого приложения. На сайте прибит к низу экрана</p>
+
+    <div class="demo dock-demo">
+      <p class="demo-label">Монитор от 19" — внизу. Наведи мышью</p>
+      <nav class="dock dock--static dock--bottom" aria-label="Таб-бар (пример)">
+        <ul class="dock__bar">
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Кому полезен</span><span class="dock__caption" aria-hidden="true">Кому полезен</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Узнаёте себя</span><span class="dock__caption" aria-hidden="true">Узнаёте себя</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock" aria-current="true"><span class="dock__tile dock__tile--sun"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--sun tag--down dock__label">Что будет</span><span class="dock__caption" aria-hidden="true">Что будет</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--blue dock__tile--sticker"><img src="img/stikery/kot-noutbuk.webp" width="240" height="194" alt=""></span><span class="tag tag--blue tag--down dock__label">Запись</span><span class="dock__caption" aria-hidden="true">Запись</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--sun dock__tile--sticker"><img src="img/stikery/kot-kist.webp" width="240" height="157" alt=""></span><span class="tag tag--sun tag--down dock__label">Кейсы</span><span class="dock__caption" aria-hidden="true">Кейсы</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--matcha dock__tile--sticker"><img src="img/stikery/kot-ulybka.webp" width="240" height="204" alt=""></span><span class="tag tag--matcha tag--down dock__label">Бонусы</span><span class="dock__caption" aria-hidden="true">Бонусы</span></a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="demo dock-demo dock-demo--side">
+      <p class="demo-label">Ноутбук — сбоку (наведение на «Узнаёте себя»)</p>
+      <nav class="dock dock--static dock--side" aria-label="Таб-бар сбоку (пример)">
+        <ul class="dock__bar">
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Кому полезен</span><span class="dock__caption" aria-hidden="true">Кому полезен</span></a></li>
+          <li class="dock__item is-hover"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Узнаёте себя</span><span class="dock__caption" aria-hidden="true">Узнаёте себя</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock" aria-current="true"><span class="dock__tile dock__tile--sun"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--sun tag--down dock__label">Что будет</span><span class="dock__caption" aria-hidden="true">Что будет</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--blue dock__tile--sticker"><img src="img/stikery/kot-noutbuk.webp" width="240" height="194" alt=""></span><span class="tag tag--blue tag--down dock__label">Запись</span><span class="dock__caption" aria-hidden="true">Запись</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--sun dock__tile--sticker"><img src="img/stikery/kot-kist.webp" width="240" height="157" alt=""></span><span class="tag tag--sun tag--down dock__label">Кейсы</span><span class="dock__caption" aria-hidden="true">Кейсы</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--matcha dock__tile--sticker"><img src="img/stikery/kot-ulybka.webp" width="240" height="204" alt=""></span><span class="tag tag--matcha tag--down dock__label">Бонусы</span><span class="dock__caption" aria-hidden="true">Бонусы</span></a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="demo dock-demo">
+      <p class="demo-label">На телефоне — подписи под плитками</p>
+      <nav class="dock dock--static dock--bottom dock--touch" aria-label="Таб-бар на телефоне (пример)">
+        <ul class="dock__bar">
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Кому полезен</span><span class="dock__caption" aria-hidden="true">Кому полезен</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Узнаёте себя</span><span class="dock__caption" aria-hidden="true">Узнаёте себя</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock" aria-current="true"><span class="dock__tile dock__tile--sun"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--sun tag--down dock__label">Что будет</span><span class="dock__caption" aria-hidden="true">Что будет</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--blue dock__tile--sticker"><img src="img/stikery/kot-noutbuk.webp" width="240" height="194" alt=""></span><span class="tag tag--blue tag--down dock__label">Запись</span><span class="dock__caption" aria-hidden="true">Запись</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--sun dock__tile--sticker"><img src="img/stikery/kot-kist.webp" width="240" height="157" alt=""></span><span class="tag tag--sun tag--down dock__label">Кейсы</span><span class="dock__caption" aria-hidden="true">Кейсы</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--matcha dock__tile--sticker"><img src="img/stikery/kot-ulybka.webp" width="240" height="204" alt=""></span><span class="tag tag--matcha tag--down dock__label">Бонусы</span><span class="dock__caption" aria-hidden="true">Бонусы</span></a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="demo dock-demo">
+      <p class="demo-label">С кнопкой «Регистрация на эфир», телефон — кнопка в линию не влезает: в таб-баре папка «Регистрация», без кнопки и разделителя</p>
+      <div class="dock-screen dock-screen--phone">
+      <nav class="dock dock--static dock--bottom dock--touch" aria-label="Таб-бар с кнопкой на телефоне (пример)"><div class="dock__window">
+        <ul class="dock__bar">
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Для&nbsp;кого</span><span class="dock__caption" aria-hidden="true">Для&nbsp;кого</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--blue dock__tile--photo"><img src="img/kot-pirozhok-goluboy.webp" width="320" height="320" alt=""></span><span class="tag tag--blue tag--down dock__label">Зачем идти</span><span class="dock__caption" aria-hidden="true">Зачем идти</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock" aria-current="true"><span class="dock__tile dock__tile--sun dock__tile--photo"><img src="img/kot-naushniki.webp" width="320" height="320" alt=""></span><span class="tag tag--sun tag--down dock__label">Что&nbsp;будет</span><span class="dock__caption" aria-hidden="true">Что&nbsp;будет</span></a></li>
+          <li class="dock__item dock__item--twin"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Регистрация</span><span class="dock__caption" aria-hidden="true">Регистрация</span></a></li>
+        </ul>
+        <div class="dock__cta">
+          <a class="slide-cta" href="#dock" draggable="false"><span class="slide-cta__knob" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="slide-cta__text"><span class="slide-cta__label">Регистрация на&nbsp;эфир</span></span></a>
+        </div>
+      </div></nav>
+      </div>
+    </div>
+
+    <div class="demo dock-demo">
+      <p class="demo-label">С кнопкой, шире 40rem (планшет, монитор) — кнопка с текстом высотой в плитку и в ширину всех плиток, папки «Регистрация» нет</p>
+      <div class="dock-screen">
+      <nav class="dock dock--static dock--bottom" aria-label="Таб-бар с кнопкой (пример)"><div class="dock__window">
+        <ul class="dock__bar">
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Для&nbsp;кого</span><span class="dock__caption" aria-hidden="true">Для&nbsp;кого</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--blue dock__tile--photo"><img src="img/kot-pirozhok-goluboy.webp" width="320" height="320" alt=""></span><span class="tag tag--blue tag--down dock__label">Зачем идти</span><span class="dock__caption" aria-hidden="true">Зачем идти</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock" aria-current="true"><span class="dock__tile dock__tile--sun dock__tile--photo"><img src="img/kot-naushniki.webp" width="320" height="320" alt=""></span><span class="tag tag--sun tag--down dock__label">Что&nbsp;будет</span><span class="dock__caption" aria-hidden="true">Что&nbsp;будет</span></a></li>
+          <li class="dock__item dock__item--twin"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Регистрация</span><span class="dock__caption" aria-hidden="true">Регистрация</span></a></li>
+        </ul>
+        <div class="dock__cta">
+          <a class="slide-cta" href="#dock" draggable="false"><span class="slide-cta__knob" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="slide-cta__text"><span class="slide-cta__label">Регистрация на&nbsp;эфир</span></span></a>
+        </div>
+      </div></nav>
+      </div>
+    </div>
+
+    <div class="demo dock-demo">
+      <p class="demo-label">Наведение на «Узнаёте себя»</p>
+      <nav class="dock dock--static dock--bottom" aria-label="Таб-бар, наведение (пример)">
+        <ul class="dock__bar">
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Кому полезен</span><span class="dock__caption" aria-hidden="true">Кому полезен</span></a></li>
+          <li class="dock__item is-hover"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Узнаёте себя</span><span class="dock__caption" aria-hidden="true">Узнаёте себя</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock" aria-current="true"><span class="dock__tile dock__tile--sun"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--sun tag--down dock__label">Что будет</span><span class="dock__caption" aria-hidden="true">Что будет</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--blue dock__tile--sticker"><img src="img/stikery/kot-noutbuk.webp" width="240" height="194" alt=""></span><span class="tag tag--blue tag--down dock__label">Запись</span><span class="dock__caption" aria-hidden="true">Запись</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--sun dock__tile--sticker"><img src="img/stikery/kot-kist.webp" width="240" height="157" alt=""></span><span class="tag tag--sun tag--down dock__label">Кейсы</span><span class="dock__caption" aria-hidden="true">Кейсы</span></a></li>
+          <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--matcha dock__tile--sticker"><img src="img/stikery/kot-ulybka.webp" width="240" height="204" alt=""></span><span class="tag tag--matcha tag--down dock__label">Бонусы</span><span class="dock__caption" aria-hidden="true">Бонусы</span></a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: color-mix(in srgb, var(--paper) 62%, transparent)"></i><span><b>Полоса</b>светлое стекло: белый 62% + размытие фона</span></li>
+        <li><i style="--c: var(--color-pastel-1-soft)"></i><span><b>Плитки-папки</b>разного цвета: матча, голубая, жёлтая — плитка светлого тона (100), папка 200 и 300</span></li>
+        <li><i style="--c: var(--color-pastel-1)"></i><span><b>Название</b>тултип со стрелкой вниз — голубой, жёлтый, сиреневый по очереди</span></li>
+        <li><i style="--c: var(--color-text)"></i><span><b>Текущий раздел</b>точка #17171A под плиткой</span></li>
+      </ul>
+      <ul class="rules">
+        <li><b>Ноутбук</b> (окно 1091–1799px) — полоса сбоку слева столбиком, плитка растёт вправо, название — справа, точка текущего раздела — слева. Это оглавление витрины сейчас</li>
+        <li><b>Монитор от 19"</b> (окно от 1800px) — полоса внизу, плитки 56px, при наведении 81px, соседи 66px; название появляется при наведении и при фокусе с клавиатуры</li>
+        <li>Браузер не знает размер экрана в дюймах, только ширину окна в пикселях — границы подобраны по типичным разрешениям: ноутбуки 1280–1728px, мониторы 19" и больше — обычно 1920px и шире</li>
+        <li><b>Телефон</b> — наведения нет, поэтому под каждой плиткой подпись 11px, как в таб-баре iPhone; у текущего раздела она жирная и с точкой</li>
+        <li><b>С кнопкой «Регистрация на эфир»</b> (решение 12.10) — внизу кнопка и плитки в одну линию в одном стеклянном окне, кнопка высотой в плитку, отделена полоской, как разделитель в Dock на Mac. На телефоне кнопка — такая же плитка: голубое стекло, белый круг со стрелкой, подпись «Регистрация»; папка «Регистрация» (<code>dock__item--twin</code>) тогда прячется. Сбоку (ноутбук) окна нет — кнопка прежнего размера прибита к низу экрана под фото первого экрана и прячется, пока на экране форма записи</li>
+        <li>Если в системе включено «уменьшить движение» — плитки не анимируются</li>
+        <li>На сайте у страницы нижний отступ под таб-бар, чтобы он не закрывал последний блок</li>
+      </ul>
+      <pre><code>&lt;nav class="dock" aria-label="Разделы страницы"&gt;&lt;ul class="dock__bar"&gt;
+  &lt;li class="dock__item"&gt;&lt;a class="dock__link" href="#who" aria-current="true"&gt;
+    &lt;span class="dock__tile"&gt;&lt;svg class="folder__icon" …&gt;…&lt;/svg&gt;&lt;/span&gt;
+    &lt;span class="tag tag--lilac tag--down dock__label"&gt;Кому полезен&lt;/span&gt;
+  &lt;/a&gt;&lt;/li&gt;
+  &lt;li class="dock__item"&gt;&lt;a class="dock__link" href="#cases"&gt;
+    &lt;span class="dock__tile dock__tile--sun dock__tile--sticker"&gt;&lt;img src="img/stikery/kot-kist.webp" alt=""&gt;&lt;/span&gt;
+    &lt;span class="tag tag--blue tag--down dock__label"&gt;Кейсы&lt;/span&gt;
+  &lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/nav&gt;</code></pre>
+      <p class="kit-note">Названия пока — заготовки по блокам прототипа. Поменяй, если нужно</p>
+    </div>
+  </section>
+
+  <!-- Доп. плашка -->
+  <section class="kit-section" id="notice" aria-labelledby="h-notice">
+    <p class="eyebrow">Компонент 9</p>
+    <h2 id="h-notice">Доп. плашка <span class="highlight">как уведомление</span></h2>
+    <p class="kit-note">Как уведомление iOS: белая матовая карточка, жирный заголовок и текст по центру, снизу кнопки через тонкие линии. Главная кнопка — жирная. Синего в палитре нет, поэтому кнопки — цветом ссылок, тёмной матчей</p>
+
+    <div class="demo notice-demo">
+      <p class="demo-label">Поверх фото</p>
+      <div class="photo-stub notice-photo">
+        <aside class="notice" aria-labelledby="n-1"><div class="notice__body"><h3 class="notice__title" id="n-1">Записи не будет</h3><p class="notice__text">20 октября, 19:00 по Москве</p></div><div class="notice__actions"><a class="notice__action" href="#notice">Подробнее</a><a class="notice__action notice__action--main" href="#notice">Записаться</a></div></aside>
+      </div>
+    </div>
+
+    <div class="kit-grid">
+      <div class="demo notice-demo">
+        <p class="demo-label">Одна кнопка</p>
+        <aside class="notice" aria-labelledby="n-2"><div class="notice__body"><h3 class="notice__title" id="n-2">Тем, кто будет онлайн</h3><p class="notice__text">Шпаргалка и инструкция в подарок</p></div><div class="notice__actions"><a class="notice__action notice__action--main" href="#notice">Записаться</a></div></aside>
+      </div>
+      <div class="demo notice-demo">
+        <p class="demo-label">Наведение на «Подробнее»</p>
+        <aside class="notice" aria-labelledby="n-4"><div class="notice__body"><h3 class="notice__title" id="n-4">Записи не будет</h3><p class="notice__text">20 октября, 19:00 по Москве</p></div><div class="notice__actions"><a class="notice__action is-hover" href="#notice">Подробнее</a><a class="notice__action notice__action--main" href="#notice">Записаться</a></div></aside>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--color-notice)"></i><span><b>Карточка</b>белая 85% + размытие фона, скругление 22px · <code>--color-notice</code></span></li>
+        <li><i style="--c: var(--color-text)"></i><span><b>Заголовок и текст</b>роли H3 и Текст, по центру</span></li>
+        <li><i style="--c: var(--color-link)"></i><span><b>Кнопки</b>#5E6529, главная — жирная (роль Кнопка), остальные — обычные; контраст 4,7–6,2:1 на любом фоне</span></li>
+        <li><i style="--c: var(--color-divider)"></i><span><b>Линии</b>чернила 12% · <code>--color-divider</code></span></li>
+      </ul>
+      <pre><code>&lt;aside class="notice" aria-labelledby="n-bonus"&gt;
+  &lt;div class="notice__body"&gt;
+    &lt;h3 class="notice__title" id="n-bonus"&gt;Записи не будет&lt;/h3&gt;
+    &lt;p class="notice__text"&gt;20 октября, 19:00 по Москве&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class="notice__actions"&gt;
+    &lt;a class="notice__action" href="#who"&gt;Подробнее&lt;/a&gt;
+    &lt;a class="notice__action notice__action--main" href="#zapis"&gt;Записаться&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/aside&gt;</code></pre>
+      <p class="kit-note">Это карточка на странице, не всплывающее окно. Подписи кнопок — заготовки: «Подробнее», «Записаться»</p>
+    </div>
+  </section>
+
+  <!-- Плашка-цитата -->
+  <section class="kit-section" id="quote" aria-labelledby="h-quote">
+    <p class="eyebrow">Компонент 10</p>
+    <h2 id="h-quote">Плашка <span class="highlight">без кнопок</span></h2>
+    <p class="kit-note">Светлая матовая карточка в виде окна браузера: сверху полоска со «светофором» и поиском, по центру подпись цветом, крупное жирное название в кавычках и текст. Для бонусов, фактов, «для кого». Кнопок нет — когда нужны кнопки, берём уведомление</p>
+
+    <div class="demo aura">
+      <figure class="quote-card"><div class="quote-card__bar" aria-hidden="true"><span class="quote-card__lights"><i style="--c: var(--red-300)"></i><i style="--c: var(--sun-300)"></i><i style="--c: var(--matcha-400)"></i></span><span class="quote-card__toggle"></span><span class="quote-card__search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><span class="quote-card__icons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 5v14M5 12h14"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></div><div class="quote-card__body"><p class="quote-card__label">В подарок:</p><p class="quote-card__title">Шпаргалка</p><p class="quote-card__text">Где дизайнеру уже сейчас применять нейросети и ускорять свою работу</p></div></figure>
+    </div>
+
+    <div class="kit-grid">
+      <div class="demo aura aura--soft">
+        <p class="demo-label">Подпись тёмной матчей — сейчас</p>
+        <figure class="quote-card"><div class="quote-card__bar" aria-hidden="true"><span class="quote-card__lights"><i style="--c: var(--red-300)"></i><i style="--c: var(--sun-300)"></i><i style="--c: var(--matcha-400)"></i></span><span class="quote-card__toggle"></span><span class="quote-card__search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><span class="quote-card__icons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 5v14M5 12h14"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></div><div class="quote-card__body"><p class="quote-card__label">Для кого:</p><p class="quote-card__title">Дизайнерам</p><p class="quote-card__text">уже делаете сайты или только начинаете</p></div></figure>
+      </div>
+      <div class="demo aura aura--soft">
+        <p class="demo-label">Подпись тёмно-голубым — нужен новый цвет</p>
+        <figure class="quote-card"><div class="quote-card__bar" aria-hidden="true"><span class="quote-card__lights"><i style="--c: var(--red-300)"></i><i style="--c: var(--sun-300)"></i><i style="--c: var(--matcha-400)"></i></span><span class="quote-card__toggle"></span><span class="quote-card__search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><span class="quote-card__icons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 5v14M5 12h14"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></div><div class="quote-card__body"><p class="quote-card__label" style="color: #B63573">В подарок:</p><p class="quote-card__title">Инструкция</p><p class="quote-card__text">По настройке нейросети Claude, чтобы не словить блокировку</p></div></figure>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--color-notice)"></i><span><b>Карточка</b>белая 85% + размытие фона, скругление 14px, как у окна Mac</span></li>
+        <li><i style="--c: var(--red-300)"></i><span><b>Полоска окна</b>«светофор» из палитры: #EFA6A0, #F9D876, #B0B97B; поиск и значки — украшение, для диктора скрыты</span></li>
+        <li><i style="--c: var(--color-quote-label)"></i><span><b>Подпись</b>роль Подзаголовок, цветом · <code>--color-quote-label</code></span></li>
+        <li><i style="--c: var(--color-text)"></i><span><b>Название</b>новая роль «Цитата»: 28 → 44px, 700, без кавычек (решение 12.10) · <code>--type-quote</code></span></li>
+        <li><i style="--c: var(--color-text)"></i><span><b>Текст</b>роль Подзаголовок</span></li>
+      </ul>
+      <pre><code>&lt;figure class="quote-card"&gt;
+  &lt;div class="quote-card__bar" aria-hidden="true"&gt;
+    &lt;span class="quote-card__lights"&gt;&lt;i …&gt;&lt;/i&gt;&lt;i …&gt;&lt;/i&gt;&lt;i …&gt;&lt;/i&gt;&lt;/span&gt;
+    &lt;span class="quote-card__toggle"&gt;&lt;/span&gt;
+    &lt;span class="quote-card__search"&gt;&lt;svg …лупа…&gt;&lt;/svg&gt;&lt;/span&gt;
+    &lt;span class="quote-card__icons"&gt;&lt;svg …+…&gt;&lt;/svg&gt;&lt;svg …&gt;&lt;/svg&gt;&lt;svg …меню…&gt;&lt;/svg&gt;&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="quote-card__body"&gt;
+    &lt;p class="quote-card__label"&gt;В подарок:&lt;/p&gt;
+    &lt;p class="quote-card__title"&gt;Шпаргалка&lt;/p&gt;
+    &lt;p class="quote-card__text"&gt;Где дизайнеру уже сейчас применять нейросети и ускорять свою работу&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/figure&gt;</code></pre>
+      <p class="kit-note">Голубой из палитры на белом не читается — 1,9:1, а нужно от 4,5:1. Тёмно-голубой #B63573 читается (5,6:1), но его нет в палитре — добавлю только после твоего «да»</p>
+    </div>
+  </section>
+
+  <!-- Рамка для фото -->
+  <section class="kit-section" id="frame" aria-labelledby="h-frame">
+    <p class="eyebrow">Компонент 11</p>
+    <h2 id="h-frame">Рамка <span class="highlight">для фото</span></h2>
+    <p class="kit-note">Как выделение объекта в Figma: тонкая линия, круглые ручки в углах, вытянутые — посередине сторон. Голубая и зелёная. Подстраивается под фото любого размера: ручки остаются одного размера и всегда на линии</p>
+
+    <div class="demo frame-demo">
+      <p class="demo-label">Разные размеры и формы</p>
+      <div class="frame-row">
+        <figure class="photo-frame photo-frame--blue"><img src="img/tatiana-1-683.webp" width="180" height="270" style="width: 180px; aspect-ratio: 2 / 3; object-fit: cover" alt="Татьяна"></figure>
+        <figure class="photo-frame photo-frame--matcha"><img src="img/kot-2.jpg" width="200" height="200" style="width: 200px; aspect-ratio: 1; object-fit: cover" alt="Рыжий котик с телефоном"></figure>
+        <figure class="photo-frame photo-frame--blue"><img src="img/kot-3.jpg" width="320" height="180" style="width: 320px; aspect-ratio: 16 / 9; object-fit: cover" alt="Котик в очках"></figure>
+        <figure class="photo-frame photo-frame--matcha"><img src="img/kot-1.jpg" width="96" height="96" style="width: 96px; aspect-ratio: 1; object-fit: cover" alt="Котик с жестом «позвони мне»"></figure>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--color-pastel-1-deep)"></i><span><b>Голубая</b>#8EC9F3 · <code>photo-frame--blue</code></span></li>
+        <li><i style="--c: var(--color-accent)"></i><span><b>Зелёная</b>матча #B0B97B · <code>photo-frame--matcha</code></span></li>
+        <li><i style="--c: var(--color-text)"></i><span><b>Размеры</b>линия 2px, ручки в углах 14px, на сторонах 28×9px — у любого фото</span></li>
+      </ul>
+      <pre><code>&lt;figure class="photo-frame photo-frame--blue"&gt;
+  &lt;img src="img/kot-2.jpg" width="480" height="471" alt="Рыжий котик с телефоном"&gt;
+&lt;/figure&gt;</code></pre>
+      <p class="kit-note">Рамка не меняет фото — размер задаёт сама картинка. Вокруг рамки — поле 7px, чтобы ручки не налезали на соседние блоки</p>
+    </div>
+  </section>
+
+  <!-- ═════════ Для слайдов и постов — перенесено из ДС слайдов YouTube (19.10, шаг 235) ═════════ -->
+  <section class="kit-section" id="kontent" aria-labelledby="h-kontent">
+    <p class="eyebrow">Для слайдов и постов</p>
+    <h2 id="h-kontent">Элементы <span class="highlight">из слайдов</span></h2>
+    <p class="kit-note">Дальше — то, что придумали для слайдов к роликам на YouTube, и чего на сайте не было. Стили — в <code>kontent.css</code>: подключается после <code>styles.css</code>, на сайт эфира не идёт. Размеры в rem: в посте 1rem = 16px, в слайдах корневой шрифт 32px — всё ровно вдвое крупнее. В слайдах элементы выходят по очереди: 0,45 с, шаг 0,08 с, в списках 0,14 с; числа и кольца считаются от нуля</p>
+    <p class="kit-note">Уже были в ДС и в слайдах взяты как есть: пузырь над заголовком, отметки (имя, перечисление), уведомление iOS (вопрос зрителям), кнопка-свайп (ссылка в описании), файл (подарок), папки, рамка для фото</p>
+  </section>
+
+  <!-- Окна и листы -->
+  <section class="kit-section" id="win" aria-labelledby="h-win">
+    <p class="eyebrow">Компонент 12</p>
+    <h2 id="h-win">Окна <span class="highlight">и листы</span></h2>
+    <p class="kit-note">Белый лист на точках — основа слайда и поста: на нём карточки, сравнения, подарок. Окно браузера — для скринов: полоска та же, что у плашки-цитаты, в строке адреса — то, что на скрине. Детали на скрине отмечаем тёмными отметками, как людей на фото в инсте</p>
+
+    <div class="demo">
+      <p class="demo-label">Скрин с отметками</p>
+      <div class="win">
+        <div class="quote-card__bar" aria-hidden="true"><span class="quote-card__lights"><i style="--c: var(--red-300)"></i><i style="--c: var(--sun-300)"></i><i style="--c: var(--matcha-400)"></i></span><span class="quote-card__search"><svg viewBox="0 0 24 24"><use href="#i-lock"/></svg></span></div>
+        <div class="win__body">
+          <img src="туториал/скрины/210-live-1440.jpg" width="1425" height="804" alt="Первый экран сайта эфира">
+          <span class="tag pin" style="left: 17%; top: 47%">Папки как на&nbsp;маке</span>
+          <span class="tag pin" style="left: 46%; top: 62%">Я&nbsp;с&nbsp;матчей</span>
+          <span class="tag pin" style="left: 78%; top: 52%">Котики</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="kit-grid">
+      <div class="demo">
+        <p class="demo-label">Карточка с ключевым словом</p>
+        <div class="sheet sheet--pad"><p class="eyebrow">Это и&nbsp;есть</p><p class="keyword"><span class="highlight">нейрослоп</span></p></div>
+      </div>
+      <div class="demo">
+        <p class="demo-label">Образцы цвета с контрастом</p>
+        <div class="chips">
+          <div class="chip" style="--c: var(--matcha-700); --on: var(--paper)"><code>матча 700 · #5E6529</code><p>Заголовок</p><span class="tag tag--matcha">6,2&nbsp;:&nbsp;1&nbsp;— читается</span></div>
+          <div class="chip" style="--c: var(--blue-300)"><code>голубая 300 · #8EC9F3</code><p>Заголовок</p><span class="tag">10&nbsp;:&nbsp;1&nbsp;— читается</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo">
+      <p class="demo-label">Пин-доска референсов</p>
+      <div class="board">
+        <img src="туториал/скрины/03-ref-whats-in-my-bag-2.png" width="720" height="900" alt="" style="width: 24%; left: 0; top: 6%; rotate: -4deg">
+        <img src="туториал/скрины/05-ref-tochki.png" width="736" height="920" alt="" style="width: 25%; left: 72%; top: 2%; rotate: 3deg">
+        <img src="туториал/скрины/03-ref-whats-in-my-bag-1.webp" width="1200" height="1600" alt="" style="width: 22%; left: 33%; top: 46%; rotate: 2deg">
+        <img src="туториал/скрины/09-ref-vydelenie.png" width="722" height="422" alt="" style="width: 32%; left: 64%; top: 62%; rotate: -2deg">
+        <figure class="photo-frame photo-frame--blue" style="left: 29%; top: 10%; width: 36%"><img src="туториал/скрины/06-ref-starter-pack.png" width="756" height="314" alt="Выбранный референс" style="width: 100%; height: auto"></figure>
+        <span class="tag pin" style="left: 47%; top: 38%">конкретный элемент</span>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--paper)"></i><span><b>Лист</b>белый, край 1px и тень ДС, скругление 16px · <code>sheet</code>, с полями — <code>sheet--pad</code></span></li>
+        <li><i style="--c: var(--gray-150)"></i><span><b>Окно</b>полоска со «светофором» и адресом · <code>win</code>, скрин — в <code>win__body</code></span></li>
+        <li><i style="--c: var(--ink-900)"></i><span><b>Отметка</b>тёмная плашка со стрелкой, место — <code>left/top</code> в % · <code>tag pin</code></span></li>
+        <li><i style="--c: var(--color-pastel-1-deep)"></i><span><b>Доска</b>картинки в белой рамке вразброс, нужная — в голубой рамке выделения · <code>board</code></span></li>
+        <li><i style="--c: var(--matcha-700)"></i><span><b>Образец цвета</b>hex, пример заголовка, контраст отметкой · <code>chip</code>, цвет — <code>--c</code>, текст — <code>--on</code></span></li>
+        <li><i style="--c: var(--blue-200)"></i><span><b>Ключевое слово</b>58px, одно слово с выделением · <code>keyword</code></span></li>
+      </ul>
+      <pre><code>&lt;div class="win"&gt;
+  &lt;div class="quote-card__bar" aria-hidden="true"&gt;…светофор… &lt;span class="quote-card__search"&gt;&lt;svg&gt;&lt;use href="#i-lock"/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;/div&gt;
+  &lt;div class="win__body"&gt;
+    &lt;img src="скрин.jpg" alt="…"&gt;
+    &lt;span class="tag pin" style="left: 46%; top: 62%"&gt;Я с матчей&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="sheet sheet--pad"&gt;
+  &lt;p class="eyebrow"&gt;Это и есть&lt;/p&gt;
+  &lt;p class="keyword"&gt;&lt;span class="highlight"&gt;нейрослоп&lt;/span&gt;&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </section>
+
+  <!-- Переписка -->
+  <section class="kit-section" id="talk" aria-labelledby="h-talk">
+    <p class="eyebrow">Компонент 13</p>
+    <h2 id="h-talk">Переписка <span class="highlight">и сообщения</span></h2>
+    <p class="kit-note">Пузыри, как в iMessage: ваши сообщения — голубые справа, ответы нейронки — серые слева. Ваши слова — дословно. Поле с кодовым словом — когда зовём написать слово в директ или боту. Пуш, как на Mac, — для лайфхака между делом</p>
+
+    <div class="kit-grid">
+      <div class="demo">
+        <p class="demo-label">Переписка с нейронкой</p>
+        <div class="talk">
+          <p class="talk__who talk__who--out">Я&nbsp;пишу нейронке</p>
+          <p class="bubble bubble--out">сделай мне вот такую цветовую гамму</p>
+          <p class="talk__who">Она отвечает</p>
+          <p class="bubble bubble--in">Сняла цвета пипеткой с&nbsp;картинки и&nbsp;посчитала контраст</p>
+        </div>
+      </div>
+      <div class="demo">
+        <p class="demo-label">Кодовое слово</p>
+        <div class="kw">
+          <span class="tag tag--down">Напишите кодовое слово</span>
+          <p class="kw__field"><span>эфир</span><i class="kw__send"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg></i></p>
+        </div>
+      </div>
+      <div class="demo notice-demo">
+        <p class="demo-label">Пуш — лайфхак</p>
+        <div class="push push--inline"><div class="push__body"><img class="push__avatar" src="img/tatiana-avatar-160.webp" width="160" height="160" alt=""><p class="push__head"><b class="push__name">Лайфхак</b><span class="push__time">сейчас</span></p><p class="push__text">Одна доска на&nbsp;проект. Тогда стиль не&nbsp;расползается</p></div></div>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--blue-200)"></i><span><b>Ваше сообщение</b>голубая 200, справа, хвостик справа · <code>bubble bubble--out</code></span></li>
+        <li><i style="--c: var(--gray-150)"></i><span><b>Ответ</b>серый пузырь, слева · <code>bubble bubble--in</code></span></li>
+        <li><i style="--c: var(--color-text-muted)"></i><span><b>Кто пишет</b>капслок 12px над пузырём · <code>talk__who</code></span></li>
+        <li><i style="--c: var(--blue-300)"></i><span><b>Кодовое слово</b>поле-капсула, мигающий курсор и кнопка «отправить» голубая 300 · <code>kw</code></span></li>
+        <li><i style="--c: var(--color-notice)"></i><span><b>Пуш</b>тот же, что окно cookie на сайте, но стоит в кадре · <code>push push--inline</code></span></li>
+      </ul>
+      <pre><code>&lt;div class="talk"&gt;
+  &lt;p class="talk__who talk__who--out"&gt;Я пишу нейронке&lt;/p&gt;
+  &lt;p class="bubble bubble--out"&gt;сделай мне вот такую цветовую гамму&lt;/p&gt;
+  &lt;p class="talk__who"&gt;Она отвечает&lt;/p&gt;
+  &lt;p class="bubble bubble--in"&gt;Сняла цвета пипеткой…&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class="kw"&gt;
+  &lt;span class="tag tag--down"&gt;Напишите кодовое слово&lt;/span&gt;
+  &lt;p class="kw__field"&gt;&lt;span&gt;эфир&lt;/span&gt;&lt;i class="kw__send"&gt;&lt;svg&gt;&lt;use href="#i-arrow"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+      <p class="kit-note">В слайдах YouTube переписка называется <code>chat</code>; здесь — <code>talk</code>, потому что <code>chat</code> на сайте уже занят окном формы записи</p>
+    </div>
+  </section>
+
+  <!-- Списки -->
+  <section class="kit-section" id="lists" aria-labelledby="h-lists">
+    <p class="eyebrow">Компонент 14</p>
+    <h2 id="h-lists">Списки <span class="highlight">и шаги</span></h2>
+    <p class="kit-note">Чек-лист — для правил, проверок, «что входит». Сравнение — два листа рядом: кто что делает, было / стало, можно / нельзя. Шаги — папками с номерами, текущая выбрана, как файл в Finder; в углу кадра висит плашка шага</p>
+
+    <div class="kit-grid">
+      <div class="demo">
+        <p class="demo-label">Чек-лист</p>
+        <ul class="rows">
+          <li><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span>Палитра записана в&nbsp;файл</li>
+          <li><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span>Шрифт с&nbsp;кириллицей и&nbsp;лицензией</li>
+          <li><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span>Тень одна на&nbsp;весь сайт</li>
+          <li><span class="no"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-no"/></svg></span>Эмодзи на&nbsp;сайте</li>
+        </ul>
+      </div>
+      <div class="demo">
+        <p class="demo-label">Сравнение в две колонки</p>
+        <div class="vs">
+          <div class="sheet"><h3>Нейронка</h3><ul><li style="--c: var(--blue-300)">код</li><li style="--c: var(--blue-300)">вёрстка</li><li style="--c: var(--blue-300)">проверки</li></ul></div>
+          <div class="sheet"><h3>Я</h3><ul><li>референсы</li><li>выбор</li><li>вкус</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kit-grid">
+      <div class="demo">
+        <p class="demo-label">Шаги — оглавление, текущий второй</p>
+        <div class="steps">
+          <span class="step"><span class="folder"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/><text x="40" y="49" text-anchor="middle">1</text></svg></span></span>
+          <span class="step is-current"><span class="folder folder--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/><text x="40" y="49" text-anchor="middle">2</text></svg></span></span>
+          <span class="step"><span class="folder"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/><text x="40" y="49" text-anchor="middle">3</text></svg></span></span>
+          <span class="step"><span class="folder"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/><text x="40" y="49" text-anchor="middle">4</text></svg></span></span>
+          <span class="step"><span class="folder"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/><text x="40" y="49" text-anchor="middle">5</text></svg></span></span>
+        </div>
+      </div>
+      <div class="demo">
+        <p class="demo-label">Плашка шага в углу</p>
+        <div class="sheet plate-step"><span class="step is-current"><span class="folder folder--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/><text x="40" y="49" text-anchor="middle">2</text></svg></span></span><p><span class="t-caption">Шаг 2 из&nbsp;5</span><b>Цвета</b></p></div>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--matcha-200)"></i><span><b>Галочка</b>матча 700 на светлой матче · <code>ok</code></span></li>
+        <li><i style="--c: var(--red-200)"></i><span><b>Крестик</b>чернила на красной 200 · <code>no</code></span></li>
+        <li><i style="--c: var(--paper)"></i><span><b>Сравнение</b>два листа, заголовок H3 26px, точка — цвет стороны: голубая — нейронка, матча — вы · <code>vs</code>, точка — <code>--c</code></span></li>
+        <li><i style="--c: var(--color-pastel-1-deep)"></i><span><b>Шаги</b>папки ДС с номером, текущая — голубая, приоткрыта, с подложкой · <code>steps</code> / <code>step is-current</code></span></li>
+      </ul>
+      <pre><code>&lt;ul class="rows"&gt;
+  &lt;li&gt;&lt;span class="ok"&gt;&lt;svg&gt;&lt;use href="#i-ok"/&gt;&lt;/svg&gt;&lt;/span&gt;Палитра записана в файл&lt;/li&gt;
+  &lt;li&gt;&lt;span class="no"&gt;&lt;svg&gt;&lt;use href="#i-no"/&gt;&lt;/svg&gt;&lt;/span&gt;Эмодзи на сайте&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class="vs"&gt;
+  &lt;div class="sheet"&gt;&lt;h3&gt;Нейронка&lt;/h3&gt;&lt;ul&gt;&lt;li style="--c: var(--blue-300)"&gt;код&lt;/li&gt;…&lt;/ul&gt;&lt;/div&gt;
+  &lt;div class="sheet"&gt;&lt;h3&gt;Я&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;вкус&lt;/li&gt;…&lt;/ul&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      <p class="kit-note">Крестик в слайдах YouTube был красно-коричневым #B5534B — этого оттенка нет в палитре, поэтому здесь чернила на красной 200</p>
+    </div>
+  </section>
+
+  <!-- Цифры -->
+  <section class="kit-section" id="numbers" aria-labelledby="h-numbers">
+    <p class="eyebrow">Компонент 15</p>
+    <h2 id="h-numbers">Цифры <span class="highlight">и даты</span></h2>
+    <p class="kit-note">Большая цифра — одно число на слайд, подпись — что это за число. Кольца из 100 — для оценок, процентов, баллов. Листок календаря — для эфиров, запусков, дедлайнов: дата крупно, время и условия рядом</p>
+
+    <div class="kit-grid">
+      <div class="demo">
+        <p class="demo-label">Большая цифра</p>
+        <p class="eyebrow">Весь путь сайта</p>
+        <p class="big">233</p>
+        <p class="big-note">шага в&nbsp;переписке с&nbsp;нейронкой</p>
+      </div>
+      <div class="demo">
+        <p class="demo-label">Кольца-показатели</p>
+        <div class="sheet sheet--pad">
+          <p class="t-caption">Google PageSpeed</p>
+          <div class="gauges">
+            <div><div class="gauge"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="var(--gray-150)" stroke-width="8"/><circle cx="50" cy="50" r="44" fill="none" stroke="var(--matcha-400)" stroke-width="8" stroke-linecap="round" pathLength="100" stroke-dasharray="85 100"/></svg><b>85</b></div><p class="t-caption">телефон</p></div>
+            <div><div class="gauge"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="var(--gray-150)" stroke-width="8"/><circle cx="50" cy="50" r="44" fill="none" stroke="var(--matcha-400)" stroke-width="8" stroke-linecap="round" pathLength="100" stroke-dasharray="94 100"/></svg><b>94</b></div><p class="t-caption">компьютер</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo">
+      <p class="demo-label">Листок календаря — анонс</p>
+      <div class="kit-cal">
+        <div class="cal-day"><p class="cal-day__month">Октябрь</p><p class="cal-day__num">20</p><p class="cal-day__wd">вторник</p></div>
+        <div class="kit-cal__info">
+          <p class="eyebrow">Бесплатный эфир</p>
+          <h3 class="kit-cal__time">19:00 <span class="highlight">по&nbsp;Москве</span></h3>
+          <div class="tag-row"><span class="tag tag--sun">Записи не&nbsp;будет</span><span class="tag tag--lilac">Только онлайн</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--ink-900)"></i><span><b>Цифра</b>116px, табличные цифры · <code>big</code>, подпись — <code>big-note</code></span></li>
+        <li><i style="--c: var(--matcha-400)"></i><span><b>Кольцо</b>матча по серому, доля — <code>stroke-dasharray="85 100"</code> · <code>gauge</code></span></li>
+        <li><i style="--c: var(--matcha-200)"></i><span><b>Листок календаря</b>месяц на светлой матче, число 100px, день недели капслоком · <code>cal-day</code></span></li>
+      </ul>
+      <pre><code>&lt;div class="cal-day"&gt;
+  &lt;p class="cal-day__month"&gt;Октябрь&lt;/p&gt;
+  &lt;p class="cal-day__num"&gt;20&lt;/p&gt;
+  &lt;p class="cal-day__wd"&gt;вторник&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+      <p class="kit-note">В слайдах листок называется <code>cal</code>; здесь — <code>cal-day</code>, потому что <code>cal</code> на сайте — календарь в блоке «План эфира»</p>
+    </div>
+  </section>
+
+  <!-- Телеграм -->
+  <section class="kit-section" id="tg" aria-labelledby="h-tg">
+    <p class="eyebrow">Компонент 16</p>
+    <h2 id="h-tg">Телеграм <span class="highlight">в кадре</span></h2>
+    <p class="kit-note">Призывы в канал. «Поделиться» — как экран Телеграма: аватар, QR, имя капсом; QR настоящий, ведёт на t.me/rigayaya_design. Пост с блюром — видно, что пост есть, а прочитать можно только в канале. Фирменный голубой и значок Телеграма — только внутри этих двух элементов (твоя просьба 17.10)</p>
+
+    <div class="kit-grid">
+      <div class="demo kit-center">
+        <p class="demo-label">Поделиться каналом</p>
+        <div class="sheet tg-share">
+          <img class="tg-share__avatar" src="img/tatiana-avatar-160.webp" width="160" height="160" alt="">
+          <div class="tg-share__qr" aria-label="QR-код на t.me/rigayaya_design"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" fill="currentColor"><rect x="8.06" y="0.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="0.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="0.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="0.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="0.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="0.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="0.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="0.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="0.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="1.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="1.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="1.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="1.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="1.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="1.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="1.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="2.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="2.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="2.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="2.06" width=".88" height=".88" rx=".44"/><rect x="14.06" y="2.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="2.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="2.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="2.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="2.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="2.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="3.06" width=".88" height=".88" rx=".44"/><rect x="16.06" y="3.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="3.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="3.06" width=".88" height=".88" rx=".44"/><rect x="23.06" y="3.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="3.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="4.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="4.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="4.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="4.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="4.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="4.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="4.06" width=".88" height=".88" rx=".44"/><rect x="23.06" y="4.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="4.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="5.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="6.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="6.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="6.06" width=".88" height=".88" rx=".44"/><rect x="14.06" y="6.06" width=".88" height=".88" rx=".44"/><rect x="16.06" y="6.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="6.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="6.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="6.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="6.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="6.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="6.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="7.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="7.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="7.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="7.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="7.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="7.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="7.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="7.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="7.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="7.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="7.06" width=".88" height=".88" rx=".44"/><rect x="2.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="3.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="4.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="6.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="14.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="23.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="34.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="8.06" width=".88" height=".88" rx=".44"/><rect x="1.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="2.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="3.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="5.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="23.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="34.06" y="9.06" width=".88" height=".88" rx=".44"/><rect x="1.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="2.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="4.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="5.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="6.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="14.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="16.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="33.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="34.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="10.06" width=".88" height=".88" rx=".44"/><rect x="3.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="14.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="16.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="34.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="11.06" width=".88" height=".88" rx=".44"/><rect x="3.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="4.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="6.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="16.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="33.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="12.06" width=".88" height=".88" rx=".44"/><rect x="0.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="4.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="5.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="14.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="23.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="33.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="34.06" y="13.06" width=".88" height=".88" rx=".44"/><rect x="1.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="3.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="5.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="6.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="33.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="14.06" width=".88" height=".88" rx=".44"/><rect x="0.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="1.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="2.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="5.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="15.06" width=".88" height=".88" rx=".44"/><rect x="0.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="3.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="5.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="6.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="34.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="16.06" width=".88" height=".88" rx=".44"/><rect x="1.06" y="17.06" width=".88" height=".88" rx=".44"/><rect x="3.06" y="17.06" width=".88" height=".88" rx=".44"/><rect x="5.06" y="17.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="17.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="17.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="17.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="17.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="17.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="17.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="17.06" width=".88" height=".88" rx=".44"/><rect x="1.06" y="18.06" width=".88" height=".88" rx=".44"/><rect x="6.06" y="18.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="18.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="18.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="18.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="18.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="18.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="18.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="18.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="18.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="18.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="18.06" width=".88" height=".88" rx=".44"/><rect x="1.06" y="19.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="19.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="19.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="19.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="19.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="19.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="19.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="19.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="19.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="19.06" width=".88" height=".88" rx=".44"/><rect x="33.06" y="19.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="19.06" width=".88" height=".88" rx=".44"/><rect x="0.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="2.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="4.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="5.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="6.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="33.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="34.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="20.06" width=".88" height=".88" rx=".44"/><rect x="3.06" y="21.06" width=".88" height=".88" rx=".44"/><rect x="4.06" y="21.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="21.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="21.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="21.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="21.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="21.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="21.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="21.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="21.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="21.06" width=".88" height=".88" rx=".44"/><rect x="0.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="1.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="2.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="3.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="4.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="5.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="6.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="33.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="22.06" width=".88" height=".88" rx=".44"/><rect x="0.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="1.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="3.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="4.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="14.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="23.06" width=".88" height=".88" rx=".44"/><rect x="1.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="2.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="4.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="6.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="16.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="33.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="34.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="24.06" width=".88" height=".88" rx=".44"/><rect x="0.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="1.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="2.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="3.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="4.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="5.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="16.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="33.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="25.06" width=".88" height=".88" rx=".44"/><rect x="0.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="6.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="14.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="16.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="23.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="26.06" width=".88" height=".88" rx=".44"/><rect x="0.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="2.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="4.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="5.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="16.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="23.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="33.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="27.06" width=".88" height=".88" rx=".44"/><rect x="0.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="2.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="3.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="4.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="5.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="6.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="7.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="16.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="23.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="28.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="14.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="29.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="16.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="23.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="33.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="30.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="31.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="31.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="31.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="31.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="31.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="31.06" width=".88" height=".88" rx=".44"/><rect x="23.06" y="31.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="31.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="31.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="31.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="10.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="14.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="23.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="25.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="34.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="32.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="32.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="34.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="33.06" width=".88" height=".88" rx=".44"/><rect x="8.06" y="34.06" width=".88" height=".88" rx=".44"/><rect x="12.06" y="34.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="34.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="34.06" width=".88" height=".88" rx=".44"/><rect x="21.06" y="34.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="34.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="34.06" width=".88" height=".88" rx=".44"/><rect x="34.06" y="34.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="34.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="14.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="20.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="24.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="26.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="27.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="28.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="30.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="35.06" width=".88" height=".88" rx=".44"/><rect x="9.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="11.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="13.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="14.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="15.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="16.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="17.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="18.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="19.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="22.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="29.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="31.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="34.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="35.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="36.06" y="36.06" width=".88" height=".88" rx=".44"/><rect x="0.5" y="0.5" width="6" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1"/><rect x="2" y="2" width="3" height="3" rx="1"/><rect x="30.5" y="0.5" width="6" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1"/><rect x="32" y="2" width="3" height="3" rx="1"/><rect x="0.5" y="30.5" width="6" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1"/><rect x="2" y="32" width="3" height="3" rx="1"/><use href="#i-telegram" x="13.69" y="13.69" width="9.62" height="9.62"/></svg></div>
+          <p class="tg-share__user">@RIGAYAYA_DESIGN</p>
+          <p class="tg-share__hint"><svg viewBox="0 0 240 240" aria-hidden="true"><use href="#i-telegram"/></svg>Наведите камеру телефона</p>
+        </div>
+      </div>
+      <div class="demo kit-center">
+        <p class="demo-label">Пост с блюром</p>
+        <div class="tg-app">
+          <div class="tg-app__bar"><img src="img/tatiana-avatar-160.webp" width="160" height="160" alt=""><p><b>rigayaya_design</b><span>канал</span></p><svg class="tg-app__logo" viewBox="0 0 240 240" aria-hidden="true"><use href="#i-telegram"/></svg></div>
+          <div class="tg-app__chat">
+            <div class="tg-msg">
+              <div class="tg-msg__img"><img src="туториал/скрины/210-live-1440.jpg" width="1425" height="804" alt=""></div>
+              <p class="tg-msg__text" aria-hidden="true">Сайт в&nbsp;нейронке без нейрослопа: туториал по&nbsp;шагам. Все мои запросы слово в&nbsp;слово и&nbsp;правила, которые я&nbsp;прописала</p>
+              <p class="tg-msg__meta"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-eye"/></svg><span class="tg-msg__blur">1,2K</span><span>12:00</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: #1E96C8"></i><span><b>Голубой Телеграма</b>#1E96C8 — QR и имя; круг значка — градиент #37AEE2 → #1E96C8. Только в элементах Телеграма</span></li>
+        <li><i style="--c: #E7EDD8"></i><span><b>Фон чата</b>#E7EDD8 в точку, как обои Телеграма</span></li>
+        <li><i style="--c: var(--paper)"></i><span><b>Пост</b>белый пузырь с хвостиком, картинка и текст размыты, просмотры — тоже · <code>tg-msg</code></span></li>
+      </ul>
+      <pre><code>&lt;div class="sheet tg-share"&gt;
+  &lt;img class="tg-share__avatar" src="img/tatiana-avatar-160.webp" alt=""&gt;
+  &lt;div class="tg-share__qr" aria-label="QR-код на t.me/rigayaya_design"&gt;…svg…&lt;/div&gt;
+  &lt;p class="tg-share__user"&gt;@RIGAYAYA_DESIGN&lt;/p&gt;
+  &lt;p class="tg-share__hint"&gt;&lt;svg&gt;&lt;use href="#i-telegram"/&gt;&lt;/svg&gt;Наведите камеру телефона&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+      <p class="kit-note">QR для другой ссылки пересобирается генератором из презентации эфира (<code>lib/qrcode.js</code>)</p>
+    </div>
+  </section>
+
+  <!-- Статистика -->
+  <section class="kit-section" id="stats" aria-labelledby="h-stats">
+    <p class="eyebrow">Компонент 17</p>
+    <h2 id="h-stats">Статистика <span class="highlight">и прогресс</span></h2>
+    <p class="kit-note">Столбчатая диаграмма — для охватов, продаж, заявок по дням. Остальные столбики светлые и тают книзу, главный — матча с переливом, свечением и искрами, над ним — значение тёмной отметкой. Пунктир — среднее, на главном столбике — белая ручка. Прогресс-бар — сколько пройдено или занято: капсула, внутри матча с бликом, процент и белая ручка на конце</p>
+
+    <div class="demo">
+      <p class="demo-label">Охваты сторис за неделю — пример</p>
+      <div class="bars" style="--avg: 56%" role="img" aria-label="Охваты сторис по дням: больше всего в четверг — 12,4 тысячи, выше среднего за неделю">
+        <div class="bar" style="--h: 38%"><span class="bar__fill"></span><span class="bar__label">Пн</span></div><div class="bar" style="--h: 52%"><span class="bar__fill"></span><span class="bar__label">Вт</span></div><div class="bar" style="--h: 44%"><span class="bar__fill"></span><span class="bar__label">Ср</span></div><div class="bar bar--main" style="--h: 88%"><span class="tag tag--down">12,4&nbsp;тыс.</span><span class="bar__fill"></span><span class="bar__knob" aria-hidden="true"></span><span class="bar__label">Чт</span></div><div class="bar" style="--h: 41%"><span class="bar__fill"></span><span class="bar__label">Пт</span></div><div class="bar" style="--h: 63%"><span class="bar__fill"></span><span class="bar__label">Сб</span></div><div class="bar" style="--h: 70%"><span class="bar__fill"></span><span class="bar__label">Вс</span></div>
+        <div class="bars__avg" aria-hidden="true"><span>Среднее за неделю</span></div>
+      </div>
+    </div>
+
+    <div class="kit-grid">
+      <div class="demo">
+        <p class="demo-label">Прогресс — матча</p>
+        <div class="progress" style="--p: 75%"><p class="progress__label"><span>Места в потоке заняты</span></p><div class="progress__track" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="Места в потоке заняты"><div class="progress__fill"><b>75%</b></div></div></div>
+      </div>
+      <div class="demo">
+        <p class="demo-label">Прогресс — голубой</p>
+        <div class="progress progress--blue" style="--p: 40%"><p class="progress__label"><span>Курс пройден</span><span>4 из 10 модулей</span></p><div class="progress__track" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" aria-label="Курс пройден"><div class="progress__fill"><b>40%</b></div></div></div>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--matcha-100)"></i><span><b>Столбик</b>светлая матча с серым, тает книзу, скругление сверху 12px · <code>bar</code>, высота — <code>--h</code></span></li>
+        <li><i style="--c: var(--matcha-400)"></i><span><b>Главный столбик</b>матча 200 → 400 → 500, свечение, искры, белый кант · <code>bar bar--main</code></span></li>
+        <li><i style="--c: var(--matcha-700)"></i><span><b>Среднее</b>пунктир тёмной матчей с подписью, высота — <code>--avg</code> у <code>bars</code></span></li>
+        <li><i style="--c: var(--paper)"></i><span><b>Ручка</b>белый кружок с ореолом на пунктире · <code>bar__knob</code></span></li>
+        <li><i style="--c: var(--gray-150)"></i><span><b>Прогресс</b>серая капсула 48px, заливка — матча или голубая (<code>progress--blue</code>), доля — <code>--p</code>; процент — внутри белой ручки на конце</span></li>
+      </ul>
+      <pre><code>&lt;div class="bars" style="--avg: 56%"&gt;
+  &lt;div class="bar" style="--h: 38%"&gt;&lt;span class="bar__fill"&gt;&lt;/span&gt;&lt;span class="bar__label"&gt;Пн&lt;/span&gt;&lt;/div&gt;
+  &lt;div class="bar bar--main" style="--h: 88%"&gt;
+    &lt;span class="tag tag--down"&gt;12,4 тыс.&lt;/span&gt;&lt;span class="bar__fill"&gt;&lt;/span&gt;
+    &lt;span class="bar__knob"&gt;&lt;/span&gt;&lt;span class="bar__label"&gt;Чт&lt;/span&gt;
+  &lt;/div&gt;
+  …
+  &lt;div class="bars__avg"&gt;&lt;span&gt;Среднее за неделю&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="progress" style="--p: 75%"&gt;
+  &lt;p class="progress__label"&gt;&lt;span&gt;Места в потоке заняты&lt;/span&gt;&lt;/p&gt;
+  &lt;div class="progress__track" role="progressbar" aria-valuenow="75"&gt;&lt;div class="progress__fill"&gt;&lt;b&gt;75%&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      <p class="kit-note">Цифры в примерах — заглушки. Процент в прогрессе — чернилами: белый на матче не читается (2:1)</p>
+    </div>
+  </section>
+
+  <!-- Сравнение тарифов -->
+  <section class="kit-section" id="tariffs" aria-labelledby="h-tariffs">
+    <p class="eyebrow">Компонент 18</p>
+    <h2 id="h-tariffs">Сравнение <span class="highlight">тарифов</span></h2>
+    <p class="kit-note">Когда сравниваем варианты между собой — тарифы, инструменты, «было / стало». Строки — светлые капсулы, выбранный вариант — стеклянная голубая колонна поверх, галочки — в кружках матчи. Нет — пусто</p>
+
+    <div class="demo">
+      <p class="demo-label">Три тарифа, акцент на среднем — пример</p>
+      <div class="cmp-wrap">
+        <div class="cmp" role="table" aria-label="Что входит в тарифы" style="--cols: 3; --hl: 3; --rows: 6">
+          <span class="cmp__pillar" aria-hidden="true"></span>
+          <div role="row" style="--r: 1"><span role="columnheader"><span class="visually-hidden">Что входит</span></span><span role="columnheader">Сам</span><span role="columnheader" class="is-hl">С куратором</span><span role="columnheader">Наставничество</span></div>
+          <div role="row" style="--r: 2"><span class="cmp__bg" aria-hidden="true"></span><span role="rowheader">Уроки в записи</span><span role="cell"><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span><span class="visually-hidden">есть</span></span><span role="cell"><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span><span class="visually-hidden">есть</span></span><span role="cell"><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span><span class="visually-hidden">есть</span></span></div>
+          <div role="row" style="--r: 3"><span class="cmp__bg" aria-hidden="true"></span><span role="rowheader">Домашки с проверкой</span><span role="cell"><span class="visually-hidden">нет</span></span><span role="cell"><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span><span class="visually-hidden">есть</span></span><span role="cell"><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span><span class="visually-hidden">есть</span></span></div>
+          <div role="row" style="--r: 4"><span class="cmp__bg" aria-hidden="true"></span><span role="rowheader">Разбор портфолио</span><span role="cell"><span class="visually-hidden">нет</span></span><span role="cell"><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span><span class="visually-hidden">есть</span></span><span role="cell"><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span><span class="visually-hidden">есть</span></span></div>
+          <div role="row" style="--r: 5"><span class="cmp__bg" aria-hidden="true"></span><span role="rowheader">Созвоны один на один</span><span role="cell"><span class="visually-hidden">нет</span></span><span role="cell"><span class="visually-hidden">нет</span></span><span role="cell"><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span><span class="visually-hidden">есть</span></span></div>
+          <div role="row" style="--r: 6"><span class="cmp__bg" aria-hidden="true"></span><span role="rowheader">Помощь с первым клиентом</span><span role="cell"><span class="visually-hidden">нет</span></span><span role="cell"><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span><span class="visually-hidden">есть</span></span><span role="cell"><span class="ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ok"/></svg></span><span class="visually-hidden">есть</span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Из чего состоит</h3>
+      <ul class="anatomy">
+        <li><i style="--c: var(--gray-150)"></i><span><b>Строка</b>капсула: белая с серым, тонкий край, скругление 12px · <code>cmp__bg</code></span></li>
+        <li><i style="--c: var(--blue-200)"></i><span><b>Колонна</b>голубое стекло 200 → 100, край и свечение голубой 300 · <code>cmp__pillar</code>, какая колонка — <code>--hl</code></span></li>
+        <li><i style="--c: var(--matcha-200)"></i><span><b>Галочка</b>как в чек-листе, только в кружке · <code>ok</code></span></li>
+        <li><i style="--c: var(--ink-600)"></i><span><b>Шапка</b>названия вариантов, выбранный — чернилами</span></li>
+      </ul>
+      <pre><code>&lt;div class="cmp" role="table" style="--cols: 3; --hl: 3; --rows: 6"&gt;
+  &lt;span class="cmp__pillar" aria-hidden="true"&gt;&lt;/span&gt;
+  &lt;div role="row" style="--r: 1"&gt;&lt;span role="columnheader"&gt;&lt;/span&gt;&lt;span role="columnheader"&gt;Сам&lt;/span&gt;…&lt;/div&gt;
+  &lt;div role="row" style="--r: 2"&gt;
+    &lt;span class="cmp__bg" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span role="rowheader"&gt;Уроки в записи&lt;/span&gt;
+    &lt;span role="cell"&gt;&lt;span class="ok"&gt;…&lt;/span&gt;&lt;/span&gt;…
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      <p class="kit-note">Названия тарифов и пункты — заглушки. Вариантов может быть 2–4: <code>--cols</code> — сколько, <code>--hl</code> — какой выделен (2 — первый), <code>--rows</code> — строк вместе с шапкой. На телефоне таблица листается вбок</p>
+    </div>
+  </section>
+
+  <!-- Отзыв-скрин -->
+  <section class="kit-section" id="review" aria-labelledby="h-review">
+    <p class="eyebrow">Компонент 19</p>
+    <h2 id="h-review">Скрин сообщения <span class="highlight">на рабочем столе</span></h2>
+    <p class="kit-note">Как оформляем скрины сообщений — отзывы, вопросы, вакансии, сообщения из чатов. Скрин не ставим голым: он лежит в окне, как на экране компьютера, а рядом — открытая папка, подписанная тем, откуда сообщение. Подпись выделена, на папке — курсор: «вот, открыла»</p>
+
+    <div class="kit-grid review-demo">
+      <div class="demo">
+        <p class="demo-label">Отзыв из чата — на точках</p>
+        <figure class="review ">
+          <div class="review__folder review__folder--source folder folder--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__paper" x="5" y="13" width="70" height="40" rx="3"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Чат дизайнеров</span><svg class="review__cursor" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v15.5l4.2-4 2.6 6.2 2.6-1.1-2.6-6.1 5.9-.1Z" fill="#FBE6A2" stroke="#F9D876" stroke-width="1.3" stroke-linejoin="round"/></svg></div>
+          <div class="review__folder review__folder--extra folder folder--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__paper" x="5" y="13" width="70" height="40" rx="3"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Отзывы</span></div>
+          <div class="win review__win">
+            <div class="quote-card__bar" aria-hidden="true"><span class="quote-card__lights"><i style="--c: var(--red-300)"></i><i style="--c: var(--sun-300)"></i><i style="--c: var(--matcha-400)"></i></span><span class="quote-card__icons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v4h4"/></svg></span></div>
+            <div class="review__body">
+              <div class="review__mock"><b>Имя из скрина</b><span>Здесь скрин сообщения — аватарку обрезаем, оставляем только сообщение</span><time>14:32</time></div>
+            </div>
+          </div>
+        </figure>
+      </div>
+      <div class="bg-sample paper-stars review-sample">
+        <p class="demo-label">Вакансия — на бежевом</p>
+        <figure class="review ">
+          <div class="review__folder review__folder--source folder folder--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__paper" x="5" y="13" width="70" height="40" rx="3"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg><span class="folder__label">Вакансии</span><svg class="review__cursor" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v15.5l4.2-4 2.6 6.2 2.6-1.1-2.6-6.1 5.9-.1Z" fill="#FBE6A2" stroke="#F9D876" stroke-width="1.3" stroke-linejoin="round"/></svg></div>
+          
+          <div class="win review__win">
+            <div class="quote-card__bar" aria-hidden="true"><span class="quote-card__lights"><i style="--c: var(--red-300)"></i><i style="--c: var(--sun-300)"></i><i style="--c: var(--matcha-400)"></i></span><span class="quote-card__icons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v4h4"/></svg></span></div>
+            <div class="review__body">
+              <div class="review__mock"><b>Имя из скрина</b><span>Здесь скрин вакансии из канала или чата</span><time>14:32</time></div>
+            </div>
+          </div>
+        </figure>
+      </div>
+    </div>
+
+    <div class="kit-card">
+      <h3>Правила</h3>
+      <ul class="kit-rules">
+        <li><b>Папка — источник.</b> Подпись — откуда сообщение: «Чат дизайнеров», «Директ», «Чат учеников», «Вакансии», «Комментарии». Папка открыта (передняя стенка наклонена, виден лист), подпись на голубой подложке, на углу — жёлтый курсор ДС</li>
+        <li><b>Скрин — без аватарки.</b> Обрезаем аватар отправителя, оставляем только сообщение. Скрин целиком, не перепечатываем текстом</li>
+        <li><b>Окно.</b> Белое, полоска со «светофором», справа значки «поделиться» и «обновить». Окно — под папкой, сдвинуто вправо</li>
+        <li><b>Другие папки</b> — по желанию, для обстановки: без подложки и курсора</li>
+        <li><b>Фон</b> — любой из двух: бумага в точку или бежевая со звёздами</li>
+      </ul>
+      <ul class="anatomy">
+        <li><i style="--c: var(--blue-200)"></i><span><b>Подпись источника</b>голубая подложка, как у выбранного файла в Finder · <code>review__folder--source</code></span></li>
+        <li><i style="--c: var(--paper)"></i><span><b>Лист в папке</b>белый, виден в открытой папке · <code>folder__paper</code></span></li>
+        <li><i style="--c: var(--sun-200)"></i><span><b>Курсор</b>жёлтая стрелка ДС · <code>review__cursor</code></span></li>
+        <li><i style="--c: var(--gray-150)"></i><span><b>Окно</b>как окно со скрином, скрин — <code>review__shot</code>, до 352px в высоту</span></li>
+      </ul>
+      <pre><code>&lt;figure class="review"&gt;
+  &lt;div class="review__folder review__folder--source folder folder--blue"&gt;
+    &lt;svg class="folder__icon" …&gt;…задняя стенка… &lt;rect class="folder__paper" …/&gt; …передняя…&lt;/svg&gt;
+    &lt;span class="folder__label"&gt;Чат дизайнеров&lt;/span&gt;
+    &lt;svg class="review__cursor" …&gt;…&lt;/svg&gt;
+  &lt;/div&gt;
+  &lt;div class="win review__win"&gt;
+    &lt;div class="quote-card__bar" aria-hidden="true"&gt;…светофор… …поделиться, обновить…&lt;/div&gt;
+    &lt;div class="review__body"&gt;&lt;img class="review__shot" src="скрин.png" alt="Отзыв: …текст сообщения…"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/figure&gt;</code></pre>
+      <p class="kit-note">В витрине вместо скрина — заглушка. В <code>alt</code> скрина пишем текст сообщения: картинку не прочитает поиск и читалка экрана</p>
+    </div>
+  </section>
+
+  <!-- Шаги -->
+  <section class="kit-section" id="stepper" aria-labelledby="h-stepper">
+    <p class="eyebrow">Компонент 20</p>
+    <h2 id="h-stepper">Шаги <span class="highlight">процесса</span></h2>
+    <p class="kit-note">Для этапов работы в слайдах и постах (её референс 19.10). Пройденные и текущий шаг — голубая кнопка с белой цифрой и тёмный жирный текст, следующие — светлые и серые; линия голубеет до текущего. В слайдах шаги включаются по клику</p>
+    <div class="demo">
+      <ol class="stepper" style="max-width: 26rem">
+        <li class="stepper__item is-on"><span class="stepper__dot">1</span>Бриф и&nbsp;мудборд</li>
+        <li class="stepper__item"><span class="stepper__dot">2</span>Три концепции</li>
+        <li class="stepper__item"><span class="stepper__dot">3</span>Правки клиента</li>
+      </ol>
+    </div>
+    <div class="kit-card"><pre><code>&lt;ol class="stepper"&gt;
+  &lt;li class="stepper__item is-on"&gt;&lt;span class="stepper__dot"&gt;1&lt;/span&gt;Бриф и мудборд&lt;/li&gt;
+  &lt;li class="stepper__item"&gt;&lt;span class="stepper__dot"&gt;2&lt;/span&gt;Три концепции&lt;/li&gt;
+&lt;/ol&gt;</code></pre></div>
+  </section>
+
+  <!-- Шаги палочками -->
+  <section class="kit-section" id="stepbar" aria-labelledby="h-stepbar">
+    <p class="eyebrow">Компонент 20б</p>
+    <h2 id="h-stepbar">Шаги <span class="highlight">палочками</span></h2>
+    <p class="kit-note">Второй вид шагов — в ряд отрезками (её референс 19.10). Пройденные голубые, следующие серые; в слайдах загораются по очереди</p>
+    <div class="demo"><ol class="stepbar">
+      <li class="stepbar__item is-on"><span class="stepbar__bar"></span><span class="stepbar__n">Шаг 1</span><span class="stepbar__t">Бриф-созвон</span></li>
+      <li class="stepbar__item is-on"><span class="stepbar__bar"></span><span class="stepbar__n">Шаг 2</span><span class="stepbar__t">Мудборд</span></li>
+      <li class="stepbar__item"><span class="stepbar__bar"></span><span class="stepbar__n">Шаг 3</span><span class="stepbar__t">Концепции</span></li>
+      <li class="stepbar__item"><span class="stepbar__bar"></span><span class="stepbar__n">Шаг 4</span><span class="stepbar__t">Правки</span></li>
+    </ol></div>
+  </section>
+
+  <!-- Плашка с цифрой -->
+  <section class="kit-section" id="numcard" aria-labelledby="h-numcard">
+    <p class="eyebrow">Компонент 21</p>
+    <h2 id="h-numcard">Плашка <span class="highlight">с&nbsp;цифрой</span></h2>
+    <p class="kit-note">Для одной крупной цифры с пояснением в слайдах и постах (её референс 19.10). Мягкий градиент в цвете палитры, цифра и слово при ней (слово — по желанию), справа текст. Четыре цвета</p>
+    <div class="demo" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem">
+      <div class="numcard"><p class="numcard__cap">Журнал правок</p><p class="numcard__num"><b>50</b><span>файлов</span></p><p class="numcard__text">правок первого экрана</p></div>
+      <div class="numcard numcard--sun"><p class="numcard__cap">Сайты в работе</p><p class="numcard__num"><b>8</b></p><p class="numcard__text">бюджеты от&nbsp;130 до&nbsp;390&nbsp;тысяч</p></div>
+      <div class="numcard numcard--matcha"><p class="numcard__cap">Вакансии с&nbsp;ИИ</p><p class="numcard__num"><b>21</b><span>%</span></p><p class="numcard__text">каждая пятая вакансия дизайнера</p></div>
+      <div class="numcard numcard--lilac"><p class="numcard__cap">Каталог</p><p class="numcard__num"><b>3</b><span>часа</span></p><p class="numcard__text">работы с&nbsp;нейронкой вместо разработчика</p></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Оглавление витрины — таб-бар внизу экрана; текущий раздел отмечает dock.js -->
+<nav class="dock" aria-label="Оглавление дизайн-системы">
+  <ul class="dock__bar">
+    <li class="dock__item"><a class="dock__link" href="#base"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Основа</span><span class="dock__caption" aria-hidden="true">Основа</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#palette"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Палитра</span><span class="dock__caption" aria-hidden="true">Палитра</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#font"><span class="dock__tile dock__tile--sun"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--sun tag--down dock__label">Шрифт</span><span class="dock__caption" aria-hidden="true">Шрифт</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#type"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Текст</span><span class="dock__caption" aria-hidden="true">Текст</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#highlight"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Выделение</span><span class="dock__caption" aria-hidden="true">Выделение</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#folders"><span class="dock__tile dock__tile--sun"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--sun tag--down dock__label">Папки</span><span class="dock__caption" aria-hidden="true">Папки</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#tags"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Плашки</span><span class="dock__caption" aria-hidden="true">Плашки</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#slide"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Кнопка</span><span class="dock__caption" aria-hidden="true">Кнопка</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#files"><span class="dock__tile dock__tile--sun"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--sun tag--down dock__label">Картинки</span><span class="dock__caption" aria-hidden="true">Картинки</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#doc"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Файлы</span><span class="dock__caption" aria-hidden="true">Файлы</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#eyebrow"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Пузырь</span><span class="dock__caption" aria-hidden="true">Пузырь</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#dock"><span class="dock__tile dock__tile--sun"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--sun tag--down dock__label">Таб-бар</span><span class="dock__caption" aria-hidden="true">Таб-бар</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#notice"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Уведомление</span><span class="dock__caption" aria-hidden="true">Уведомление</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#quote"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Цитата</span><span class="dock__caption" aria-hidden="true">Цитата</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#frame"><span class="dock__tile dock__tile--sun"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--sun tag--down dock__label">Рамка</span><span class="dock__caption" aria-hidden="true">Рамка</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#win"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Окна</span><span class="dock__caption" aria-hidden="true">Окна</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#talk"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Переписка</span><span class="dock__caption" aria-hidden="true">Переписка</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#lists"><span class="dock__tile dock__tile--sun"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--sun tag--down dock__label">Списки</span><span class="dock__caption" aria-hidden="true">Списки</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#numbers"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Цифры</span><span class="dock__caption" aria-hidden="true">Цифры</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#tg"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Телеграм</span><span class="dock__caption" aria-hidden="true">Телеграм</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#stats"><span class="dock__tile dock__tile--sun"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--sun tag--down dock__label">Статистика</span><span class="dock__caption" aria-hidden="true">Статистика</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#tariffs"><span class="dock__tile dock__tile--matcha"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--matcha tag--down dock__label">Тарифы</span><span class="dock__caption" aria-hidden="true">Тарифы</span></a></li>
+    <li class="dock__item"><a class="dock__link" href="#review"><span class="dock__tile dock__tile--blue"><svg class="folder__icon" viewBox="0 0 80 62" aria-hidden="true" focusable="false"><path class="folder__back" d="M6 2H28C31 2 32.6 3 34.2 5.2L36.2 8C37.8 10.2 39.4 11 42.4 11H74A6 6 0 0 1 80 17V56A6 6 0 0 1 74 62H6A6 6 0 0 1 0 56V8A6 6 0 0 1 6 2Z"/><rect class="folder__front" x="0" y="18" width="80" height="44" rx="6"/></svg></span><span class="tag tag--blue tag--down dock__label">Отзывы</span><span class="dock__caption" aria-hidden="true">Отзывы</span></a></li>
+  </ul>
+</nav>
+<script>
+// Подписываем HEX у образцов палитры по реальным цветам на странице — так витрина всегда совпадает с tokens.css
+document.querySelectorAll(".swatch").forEach((el) => {
+  // смешанный цвет (color-mix) браузер отдаёт как color(srgb 0.71 0.86 0.96 / 0.6) — доли от 1, а не 0–255
+  const css = getComputedStyle(el.querySelector("i")).backgroundColor;
+  const nums = css.match(/[\d.]+/g).map(Number);
+  const [r, g, b] = css.startsWith("color(") ? nums.slice(0, 3).map((n) => n * 255) : nums.slice(0, 3);
+  const a = nums[3] ?? 1;
+  const hex = "#" + [r, g, b].map((n) => Math.round(n).toString(16).padStart(2, "0")).join("").toUpperCase();
+  el.querySelector(".swatch-hex").textContent = a < 1 ? `${hex} на ${Math.round(a * 100)}%` : hex;
+});
+</script>
+<script src="slide-cta.js" defer></script>
+<script src="dock.js" defer></script>
+<script src="highlight.js" defer></script>
+<script>
+// витрина: «Показать ещё раз» перезапускает анимацию выделения в своём примере
+document.querySelectorAll(".kit-replay").forEach((btn) => btn.addEventListener("click", () => {
+  btn.closest(".hl-demo").querySelector(".highlight").dispatchEvent(new Event("hl-replay"));
+}));
+</script>
+</body>
+</html>
